@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   // Note: cacheComponents and dynamicIO removed for Cloudflare Pages compatibility
   // Next.js default fetch caching will be used instead
-  cacheComponents: true,
+  cacheComponents: false,
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
