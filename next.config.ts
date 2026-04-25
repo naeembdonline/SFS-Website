@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   // typedRoutes enabled once all routes are established
   // typedRoutes: true,
   // Next.js 16 Cache Components — enables 'use cache' directive, cacheTag, cacheLife
-  cacheComponents: true,
+  cacheComponents: false,
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
