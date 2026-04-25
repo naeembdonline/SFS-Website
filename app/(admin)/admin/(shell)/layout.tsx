@@ -15,6 +15,7 @@ import { getSession } from "@/lib/auth/session";
 import { Sidebar } from "@/components/admin/shell/sidebar";
 import { Topbar } from "@/components/admin/shell/topbar";
 import { ToastProvider } from "@/components/admin/toast";
+export const dynamic = "force-dynamic";
 
 const bypassTotpInDevelopment = process.env.NODE_ENV === "development";
 
