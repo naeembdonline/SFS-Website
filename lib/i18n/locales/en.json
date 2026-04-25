@@ -1,0 +1,36 @@
+{
+  "nav": {
+    "about": "About",
+    "leadership": "Leadership",
+    "campaigns": "Campaigns",
+    "news": "News",
+    "blog": "Blog",
+    "resources": "Resources",
+    "contact": "Contact",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "locale": {
+    "bn": "বাংলা",
+    "en": "English",
+    "ar": "العربية",
+    "switchTo": "Switch language"
+  },
+  "skip": {
+    "toContent": "Skip to main content"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "privacy": "Privacy Policy",
+    "terms": "Terms"
+  },
+  "fallback": {
+    "title": "Not available in this language",
+    "message": "This content has not yet been translated into English.",
+    "viewIn": "View in"
+  },
+  "error": {
+    "notFound": "Page not found",
+    "generic": "Something went wrong"
+  }
+}

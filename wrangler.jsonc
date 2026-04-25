@@ -1,0 +1,55 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sfs-app",
+
+  // @cloudflare/next-on-pages outputs to .vercel/output/static — NOT .next
+  "pages_build_output_dir": ".vercel/output/static",
+
+  // Minimum date that supports nodejs_compat + R2 bindings
+  "compatibility_date": "2024-11-01",
+
+  // nodejs_compat: polyfills Node built-ins (Buffer, crypto, stream, etc.)
+  // Required for bcryptjs, drizzle-orm/neon, and AES-GCM totp helpers.
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+
+  // ── R2 Bucket Bindings ───────────────────────────────────────────────────
+  // Uncomment and fill in bucket names after creating them in the CF dashboard.
+  // The binding names (R2_BUCKET_PUBLIC / R2_BUCKET_PRIVATE) must match the
+  // names used in lib/media/r2.ts (R2_BUCKET_PUBLIC_NAME / R2_BUCKET_PRIVATE_NAME).
+  //
+  // "r2_buckets": [
+  //   {
+  //     "binding": "R2_BUCKET_PUBLIC",
+  //     "bucket_name": "sfs-public"
+  //   },
+  //   {
+  //     "binding": "R2_BUCKET_PRIVATE",
+  //     "bucket_name": "sfs-private"
+  //   }
+  // ],
+
+  // ── Required Secrets ────────────────────────────────────────────────────
+  // Set via: wrangler secret put <NAME>  (or Cloudflare Pages dashboard → Settings → Environment variables)
+  //
+  //   DATABASE_URL          — Neon serverless Postgres connection string
+  //   AUTH_SECRET           — 32-byte hex session signing secret  (openssl rand -hex 32)
+  //   TOTP_ENCRYPTION_KEY   — 32-byte hex AES-256-GCM key for TOTP secrets
+  //   RESEND_API_KEY        — Resend API key for transactional email
+  //   CRON_SECRET           — Secret header value for /api/cron/retention
+  //   TURNSTILE_SECRET_KEY  — Cloudflare Turnstile secret key
+  //   EMAIL_FROM            — Verified sender address ("SFS <noreply@example.com>")
+  //   EMAIL_STAFF_INBOX     — Internal address for contact/advisory notifications
+  //   R2_ACCOUNT_ID         — Cloudflare account ID (for R2 presigned URLs)
+  //   R2_ACCESS_KEY_ID      — R2 API token access key
+  //   R2_SECRET_ACCESS_KEY  — R2 API token secret key
+  //   R2_BUCKET_PUBLIC_NAME — Public R2 bucket name (CDN images)
+  //   R2_BUCKET_PRIVATE_NAME— Private R2 bucket name (docs/PDFs)
+  //   NEXT_PUBLIC_SITE_URL  — Canonical site URL (https://sfs.example.com)
+  //   NEXT_PUBLIC_TURNSTILE_SITE_KEY — Turnstile site key (public, safe to expose)
+
+  "vars": {
+    "NODE_VERSION": "20.18.0"
+  }
+}

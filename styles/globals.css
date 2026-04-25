@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+/* ─── Design Tokens ─────────────────────────────────────────── */
+@theme inline {
+  /* Brand colors */
+  --color-brand-deep: #0b3d2e;
+  --color-brand-black: #071a14;
+  --color-accent-gold: #d4af37;
+  --color-accent-green: #2ecc71;
+
+  /* Neutrals */
+  --color-neutral-50: #f3f4f6;
+  --color-neutral-100: #f0f1f3;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-500: #6b7280;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
+
+  /* Semantic: light surface */
+  --color-bg-page: #ffffff;
+  --color-bg-surface: #ffffff;
+  --color-bg-subtle: var(--color-neutral-50);
+  --color-bg-card: #ffffff;
+  --color-text-primary: var(--color-neutral-900);
+  --color-text-secondary: var(--color-neutral-800);
+  --color-text-muted: var(--color-neutral-500);
+  --color-text-inverted: #ffffff;
+  --color-border: var(--color-neutral-200);
+  --color-border-default: var(--color-neutral-200);
+  --color-border-strong: var(--color-neutral-700);
+
+  /* Focus */
+  --color-focus-ring: color-mix(in srgb, var(--color-accent-green) 50%, transparent);
+
+  /* Feedback */
+  --color-error: #dc2626;
+  --color-warning: #d97706;
+  --color-success: var(--color-accent-green);
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.08);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.10);
+  --shadow-lg: 0 8px 24px rgb(0 0 0 / 0.12);
+  --shadow-glow: 0 0 32px color-mix(in srgb, var(--color-accent-green) 12%, transparent);
+
+  /* Font families (set per locale via layout) */
+  --font-bn: "Hind Siliguri", system-ui, sans-serif;
+  --font-en: "Inter", system-ui, sans-serif;
+  --font-ar: "Noto Naskh Arabic", "Noto Sans Arabic", system-ui, sans-serif;
+  --font-sans: var(--font-en);
+  --font-mono: ui-monospace, monospace;
+
+  /* Type scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+
+  /* Spacing tokens reuse Tailwind defaults */
+}
+
+/* ─── Base Styles ────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Locale-specific font overrides ────────────────────────── */
+:lang(bn) {
+  font-family: var(--font-bn);
+  font-size-adjust: 1.05;
+}
+
+:lang(ar) {
+  font-family: var(--font-ar);
+  font-size-adjust: 1.1;
+}
+
+/* Per-script line heights on text containers */
+:lang(bn) h1,
+:lang(bn) h2,
+:lang(bn) h3,
+:lang(bn) h4 {
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+:lang(ar) h1,
+:lang(ar) h2,
+:lang(ar) h3,
+:lang(ar) h4 {
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+
+:lang(en) h1,
+:lang(en) h2,
+:lang(en) h3,
+:lang(en) h4 {
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+:lang(bn) p,
+:lang(bn) li {
+  line-height: 1.75;
+}
+
+:lang(ar) p,
+:lang(ar) li {
+  line-height: 1.8;
+}
+
+/* ─── Focus Styles ───────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-accent-green);
+  outline-offset: 2px;
+}
+
+/* ─── Selection ──────────────────────────────────────────────── */
+::selection {
+  background-color: color-mix(in srgb, var(--color-accent-gold) 25%, transparent);
+}
