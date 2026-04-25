@@ -6,7 +6,8 @@ import type { NextConfig } from "next";
 // Setting them here breaks Next.js in all environments because webpack's
 // module runtime requires eval().
 
-const nextConfig: NextConfig = {
+const nextConfig: NextConfig = {  
+  trailingSlash: true,
   // typedRoutes enabled once all routes are established
   // typedRoutes: true,
   // Next.js 16 Cache Components — enables 'use cache' directive, cacheTag, cacheLife
