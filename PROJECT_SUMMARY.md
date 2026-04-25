@@ -50,7 +50,7 @@ Latest verification:
 8. Engineering elegance
 
 ### Core constraints
-- Fast, secure, trilingual (BN / EN / AR) from day one
+- Fast, secure, trilingual (BN / EN / AR) from day  one
 - All editorial content editable from admin — no hardcoded copy
 - Manually authored per language — **no auto-translation, ever**
 - Strong security posture (politically sensitive organization)
