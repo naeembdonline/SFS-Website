@@ -1,11 +1,9 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {  
+const nextConfig: NextConfig = {
   trailingSlash: true,
-  // Next.js 16 Cache Components — enables 'use cache' directive
-  experimental: {
-    dynamicIO: true,
-  },
+  // Note: cacheComponents and dynamicIO removed for Cloudflare Pages compatibility
+  // Next.js default fetch caching will be used instead
   cacheComponents: true,
   images: {
     formats: ["image/avif", "image/webp"],

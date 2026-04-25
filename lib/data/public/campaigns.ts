@@ -3,7 +3,7 @@
  * Import boundary: public routes only.
  */
 
-import { cacheTag } from "next/cache";
+// import { cacheTag } from "next/cache"; // Disabled for Cloudflare Pages compatibility
 import { eq, and, isNull, desc, ne } from "drizzle-orm";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
@@ -46,8 +46,8 @@ export async function getCampaignList(
   limit = 20,
   offset = 0
 ): Promise<CampaignListItem[]> {
-  "use cache";
-  cacheTag(`campaigns`, `campaigns-${locale}`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`campaigns`, `campaigns-${locale}`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const rows = await db
@@ -98,8 +98,8 @@ export async function getCampaignBySlug(
   slug: string,
   locale: Locale
 ): Promise<CampaignDetail | null> {
-  "use cache";
-  cacheTag(`campaigns`, `campaigns-${locale}`, `campaign-slug-${locale}-${slug}`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`campaigns`, `campaigns-${locale}`, `campaign-slug-${locale}-${slug}`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const [row] = await db
@@ -176,8 +176,8 @@ export async function getCampaignBySlug(
 export async function getCampaignLocalesBySlug(
   slug: string
 ): Promise<{ locale: Locale; slug: string }[] | null> {
-  "use cache";
-  cacheTag(`campaigns`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`campaigns`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const [found] = await db
@@ -226,8 +226,8 @@ export async function getCampaignLocalesBySlug(
 export async function getPublishedCampaignSlugs(
   locale: Locale
 ): Promise<PublishedCampaignSlug[]> {
-  "use cache";
-  cacheTag(`campaigns`, `campaigns-${locale}`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`campaigns`, `campaigns-${locale}`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const rows = await db

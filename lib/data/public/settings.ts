@@ -4,7 +4,7 @@
  * Import boundary: only used by public routes, never admin modules.
  */
 
-import { cacheTag } from "next/cache";
+// import { cacheTag } from "next/cache"; // Disabled for Cloudflare Pages compatibility
 import { eq, and, isNull, asc } from "drizzle-orm";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
@@ -37,8 +37,8 @@ export type NavItemPublic = {
 export async function getSiteSettings(
   locale: Locale
 ): Promise<SiteSettingsPublic | null> {
-  "use cache";
-  cacheTag(`site-settings`, `site-settings-${locale}`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`site-settings`, `site-settings-${locale}`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const [row] = await db
@@ -82,8 +82,8 @@ export async function getNavItems(
   menu: "header" | "footer",
   locale: Locale
 ): Promise<NavItemPublic[]> {
-  "use cache";
-  cacheTag(`nav-${menu}`, `nav-${menu}-${locale}`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`nav-${menu}`, `nav-${menu}-${locale}`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const rows = await db

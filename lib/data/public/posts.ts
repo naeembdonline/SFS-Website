@@ -4,7 +4,7 @@
  * Import boundary: public routes only.
  */
 
-import { cacheTag } from "next/cache";
+// import { cacheTag } from "next/cache"; // Disabled for Cloudflare Pages compatibility
 import { eq, and, isNull, desc, ne } from "drizzle-orm";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
@@ -48,8 +48,8 @@ export async function getPostList(
   limit = 20,
   offset = 0
 ): Promise<PostListItem[]> {
-  "use cache";
-  cacheTag(`posts-${type}`, `posts-${type}-${locale}`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`posts-${type}`, `posts-${type}-${locale}`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const rows = await db
@@ -102,12 +102,12 @@ export async function getPostBySlug(
   slug: string,
   locale: Locale
 ): Promise<PostDetail | null> {
-  "use cache";
-  cacheTag(
-    `posts-${type}`,
-    `posts-${type}-${locale}`,
-    `post-slug-${locale}-${slug}`
-  );
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(
+  //   `posts-${type}`,
+  //   `posts-${type}-${locale}`,
+  //   `post-slug-${locale}-${slug}`
+  // ); // Disabled for Cloudflare Pages compatibility
 
   try {
     const [row] = await db
@@ -186,8 +186,8 @@ export async function getPostLocalesBySlug(
   type: PostType,
   slug: string
 ): Promise<{ locale: Locale; slug: string }[] | null> {
-  "use cache";
-  cacheTag(`posts-${type}`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`posts-${type}`); // Disabled for Cloudflare Pages compatibility
 
   try {
     // Step 1: find the post that owns this slug in any published locale
@@ -240,8 +240,8 @@ export async function getPublishedPostSlugs(
   type: PostType,
   locale: Locale
 ): Promise<PublishedSlug[]> {
-  "use cache";
-  cacheTag(`posts-${type}`, `posts-${type}-${locale}`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`posts-${type}`, `posts-${type}-${locale}`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const rows = await db

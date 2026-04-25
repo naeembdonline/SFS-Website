@@ -4,7 +4,7 @@
  * Import boundary: public routes only.
  */
 
-import { cacheTag } from "next/cache";
+// import { cacheTag } from "next/cache"; // Disabled for Cloudflare Pages compatibility
 import { eq, and, isNull, asc } from "drizzle-orm";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
@@ -26,8 +26,8 @@ export type LeadershipMember = {
 export async function getLeadershipMembers(
   locale: Locale
 ): Promise<LeadershipMember[]> {
-  "use cache";
-  cacheTag(`leadership`, `leadership-${locale}`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`leadership`, `leadership-${locale}`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const rows = await db

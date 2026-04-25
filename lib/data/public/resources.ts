@@ -3,7 +3,7 @@
  * Import boundary: public routes only.
  */
 
-import { cacheTag } from "next/cache";
+// import { cacheTag } from "next/cache"; // Disabled for Cloudflare Pages compatibility
 import { eq, and, isNull, desc, ne } from "drizzle-orm";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
@@ -36,8 +36,8 @@ export async function getResourceList(
   limit = 30,
   offset = 0
 ): Promise<ResourceListItem[]> {
-  "use cache";
-  cacheTag(`resources`, `resources-${locale}`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`resources`, `resources-${locale}`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const rows = await db
@@ -95,8 +95,8 @@ export async function getResourceBySlug(
   slug: string,
   locale: Locale
 ): Promise<ResourceDetail | null> {
-  "use cache";
-  cacheTag(`resources`, `resources-${locale}`, `resource-slug-${locale}-${slug}`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`resources`, `resources-${locale}`, `resource-slug-${locale}-${slug}`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const [row] = await db
@@ -167,8 +167,8 @@ export async function getResourceBySlug(
 export async function getResourceLocalesBySlug(
   slug: string
 ): Promise<{ locale: Locale; slug: string }[] | null> {
-  "use cache";
-  cacheTag(`resources`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`resources`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const [found] = await db
@@ -217,8 +217,8 @@ export async function getResourceLocalesBySlug(
 export async function getPublishedResourceSlugs(
   locale: Locale
 ): Promise<PublishedResourceSlug[]> {
-  "use cache";
-  cacheTag(`list:resources:${locale}`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`list:resources:${locale}`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const rows = await db

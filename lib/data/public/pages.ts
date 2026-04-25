@@ -3,7 +3,7 @@
  * Import boundary: public routes only.
  */
 
-import { cacheTag } from "next/cache";
+// import { cacheTag } from "next/cache"; // Disabled for Cloudflare Pages compatibility
 import { eq, and } from "drizzle-orm";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
@@ -33,8 +33,8 @@ export async function getPage(
   key: PageKey,
   locale: Locale
 ): Promise<PageContent | null> {
-  "use cache";
-  cacheTag(`page-${key}`, `page-${key}-${locale}`);
+  // "use cache"; // Disabled for Cloudflare Pages compatibility
+  // cacheTag(`page-${key}`, `page-${key}-${locale}`); // Disabled for Cloudflare Pages compatibility
 
   try {
     const [row] = await db
