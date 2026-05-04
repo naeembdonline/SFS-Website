@@ -46,11 +46,11 @@ async function TermsContent({ params }: TermsPageProps) {
   return (
     <>
       <section
-        className="border-b py-16 sm:py-20"
+        className="border-b py-10 sm:py-14"
         style={{ backgroundColor: "var(--color-brand-black)", borderColor: "rgba(255,255,255,0.08)" }}
       >
         <Container>
-          <h1 className="text-4xl font-bold text-white sm:text-5xl">
+          <h1 className="text-2xl font-bold text-white sm:text-3xl">
             {page?.title ?? dict.footer.terms}
           </h1>
         </Container>
