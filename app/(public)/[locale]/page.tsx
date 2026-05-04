@@ -24,14 +24,22 @@ export async function generateMetadata({
 }: HomePageProps): Promise<Metadata> {
   const { locale } = await params;
   const settings = await getSiteSettings(locale);
+  const siteName = settings?.siteName ?? "Sovereignty";
 
-  return buildMetadata({
+  const base = buildMetadata({
     locale,
     path: "",
-    title: settings?.siteName ?? "Sovereignty",
+    // Use site name as title so it renders as just "Sovereignty" not "Sovereignty | Sovereignty"
+    title: siteName,
     description: settings?.tagline ?? undefined,
-    siteName: settings?.siteName ?? "Sovereignty",
+    siteName,
   });
+
+  // Override title to use absolute form — bypasses the "%s | SiteName" template
+  return {
+    ...base,
+    title: { absolute: siteName },
+  };
 }
 
 export default function HomePage({ params }: HomePageProps) {
@@ -254,9 +262,18 @@ async function HomeContent({ params }: HomePageProps) {
             {/* Stats strip */}
             <div className="mt-16 flex flex-wrap gap-10">
               {[
-                { value: "৫০,০০০+", label: locale === "en" ? "Members" : locale === "ar" ? "عضو" : "সদস্য" },
-                { value: "৬৪", label: locale === "en" ? "Districts" : locale === "ar" ? "مقاطعة" : "জেলা" },
-                { value: "২০+", label: locale === "en" ? "Campaigns" : locale === "ar" ? "حملة" : "প্রচারণা" },
+                {
+                  value: locale === "bn" ? "৫০,০০০+" : "50,000+",
+                  label: locale === "en" ? "Members" : locale === "ar" ? "عضو" : "সদস্য",
+                },
+                {
+                  value: locale === "bn" ? "৬৪" : "64",
+                  label: locale === "en" ? "Districts" : locale === "ar" ? "مقاطعة" : "জেলা",
+                },
+                {
+                  value: locale === "bn" ? "২০+" : "20+",
+                  label: locale === "en" ? "Campaigns" : locale === "ar" ? "حملة" : "প্রচারণা",
+                },
               ].map((stat) => (
                 <div key={stat.label}>
                   <div className="text-3xl font-extrabold text-white">{stat.value}</div>

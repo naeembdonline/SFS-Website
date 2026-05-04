@@ -28,7 +28,7 @@ export async function generateMetadata({
     path: "/contact",
     title: page?.seoTitle ?? page?.title ?? dict.nav.contact,
     description: page?.metaDescription,
-    siteName: settings?.siteName,
+    siteName: settings?.siteName ?? "Sovereignty",
   });
 }
 
@@ -40,11 +40,18 @@ export default function ContactPage({ params }: ContactPageProps) {
   );
 }
 
+const CONTACT_LABELS: Record<Locale, { email: string; phone: string; address: string; social: string }> = {
+  bn: { email: "ইমেইল", phone: "ফোন", address: "ঠিকানা", social: "সোশ্যাল মিডিয়া" },
+  en: { email: "Email", phone: "Phone", address: "Address", social: "Social Media" },
+  ar: { email: "البريد الإلكتروني", phone: "الهاتف", address: "العنوان", social: "وسائل التواصل الاجتماعي" },
+};
+
 async function ContactContent({ params }: ContactPageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
   const page = await getPage("contact", locale);
   const settings = await getSiteSettings(locale);
+  const labels = CONTACT_LABELS[locale] ?? CONTACT_LABELS.en;
 
   const breadcrumb = breadcrumbJsonLd(
     [{ name: "Home", href: "" }, { name: dict.nav.contact }],
@@ -58,7 +65,11 @@ async function ContactContent({ params }: ContactPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
       />
 
-      <section className="border-b border-[--color-border] bg-[--color-brand-black] py-16">
+      {/* Dark header */}
+      <section
+        className="border-b py-16 sm:py-20"
+        style={{ backgroundColor: "var(--color-brand-black)", borderColor: "rgba(255,255,255,0.08)" }}
+      >
         <Container>
           <h1 className="text-4xl font-bold text-white sm:text-5xl">
             {page?.title ?? dict.nav.contact}
@@ -67,8 +78,9 @@ async function ContactContent({ params }: ContactPageProps) {
       </section>
 
       <Container className="py-12 sm:py-16">
-        <div className="grid gap-12 lg:grid-cols-[1fr_320px]">
-          {/* Left: page content or fallback */}
+        <div className="grid gap-12 lg:grid-cols-[1fr_300px]">
+
+          {/* Left: page content + forms */}
           <div>
             {page?.body ? (
               <Prose html={page.body} />
@@ -81,7 +93,6 @@ async function ContactContent({ params }: ContactPageProps) {
               />
             )}
 
-            {/* Contact + advisory submission forms */}
             <div className="mt-10 grid gap-6 lg:grid-cols-2">
               <SubmissionForm kind="contact" locale={locale} />
               <SubmissionForm kind="advisory" locale={locale} />
@@ -90,14 +101,16 @@ async function ContactContent({ params }: ContactPageProps) {
 
           {/* Right: contact info sidebar */}
           <aside className="space-y-6 text-sm">
+
             {settings?.contactEmail && (
-              <div>
-                <p className="font-semibold text-[--color-text-primary]">
-                  Email
+              <div className="rounded-xl border bg-white p-5 shadow-sm" style={{ borderColor: "#e5e7eb" }}>
+                <p className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-2">
+                  {labels.email}
                 </p>
                 <a
                   href={`mailto:${settings.contactEmail}`}
-                  className="mt-1 block text-[--color-brand-deep] hover:underline"
+                  className="font-semibold text-sm transition-colors hover:underline"
+                  style={{ color: "var(--color-brand-deep)" }}
                 >
                   {settings.contactEmail}
                 </a>
@@ -105,13 +118,14 @@ async function ContactContent({ params }: ContactPageProps) {
             )}
 
             {settings?.contactPhone && (
-              <div>
-                <p className="font-semibold text-[--color-text-primary]">
-                  Phone
+              <div className="rounded-xl border bg-white p-5 shadow-sm" style={{ borderColor: "#e5e7eb" }}>
+                <p className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-2">
+                  {labels.phone}
                 </p>
                 <a
                   href={`tel:${settings.contactPhone}`}
-                  className="mt-1 block text-[--color-brand-deep] hover:underline"
+                  className="font-semibold text-sm transition-colors hover:underline"
+                  style={{ color: "var(--color-brand-deep)" }}
                 >
                   {settings.contactPhone}
                 </a>
@@ -119,31 +133,32 @@ async function ContactContent({ params }: ContactPageProps) {
             )}
 
             {settings?.address && (
-              <div>
-                <p className="font-semibold text-[--color-text-primary]">
-                  Address
+              <div className="rounded-xl border bg-white p-5 shadow-sm" style={{ borderColor: "#e5e7eb" }}>
+                <p className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-2">
+                  {labels.address}
                 </p>
-                <p className="mt-1 text-[--color-text-secondary]">
+                <p className="text-sm text-neutral-600 leading-relaxed">
                   {settings.address}
                 </p>
               </div>
             )}
 
             {settings?.socials && settings.socials.length > 0 && (
-              <div>
-                <p className="font-semibold text-[--color-text-primary]">
-                  Social
+              <div className="rounded-xl border bg-white p-5 shadow-sm" style={{ borderColor: "#e5e7eb" }}>
+                <p className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-3">
+                  {labels.social}
                 </p>
-                <ul className="mt-2 space-y-1">
+                <ul className="space-y-2">
                   {settings.socials.map((s) => (
                     <li key={s.platform}>
                       <a
                         href={s.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[--color-brand-deep] hover:underline"
+                        className="text-sm font-semibold transition-colors hover:underline"
+                        style={{ color: "var(--color-brand-deep)" }}
                       >
-                        {s.platform}
+                        {s.platform} →
                       </a>
                     </li>
                   ))}
