@@ -221,7 +221,7 @@ async function HomeContent({ params }: HomePageProps) {
             </div>
 
             {/* Heading */}
-            <h1 className="text-3xl font-bold leading-snug text-white sm:text-4xl lg:text-5xl">
+            <h1 className="text-3xl font-bold leading-snug text-white sm:text-4xl">
               {settings?.siteName ?? "Sovereignty"}
             </h1>
 
@@ -276,7 +276,7 @@ async function HomeContent({ params }: HomePageProps) {
                 },
               ].map((stat) => (
                 <div key={stat.label}>
-                  <div className="text-xl font-bold text-white">{stat.value}</div>
+                  <div className="text-2xl font-extrabold text-white">{stat.value}</div>
                   <div className="mt-0.5 text-xs text-white/50">{stat.label}</div>
                 </div>
               ))}
@@ -297,13 +297,13 @@ async function HomeContent({ params }: HomePageProps) {
                 {mission.label}
               </p>
               <h2
-                className="text-lg font-semibold leading-snug sm:text-xl"
+                className="text-xl font-bold leading-snug sm:text-2xl"
                 style={{ color: "var(--color-brand-black)" }}
               >
                 {mission.heading}
               </h2>
             </div>
-            <div className="space-y-3 text-sm leading-relaxed text-neutral-600">
+            <div className="space-y-3 text-base leading-relaxed text-neutral-600">
               <p>{mission.p1}</p>
               <p>{mission.p2}</p>
               <Link

@@ -41,7 +41,7 @@ export function LeadershipCard({ member }: LeadershipCardProps) {
         </div>
         <div>
           <h3
-            className="text-base font-bold leading-tight"
+            className="text-lg font-bold leading-tight"
             style={{ color: "var(--color-brand-black)" }}
           >
             {member.name}

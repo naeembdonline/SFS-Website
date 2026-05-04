@@ -55,7 +55,7 @@ export function PostCard({ post, type, locale }: PostCardProps) {
 
       {/* Title */}
       <h3
-        className="text-base font-bold leading-snug transition-colors group-hover:underline"
+        className="text-lg font-bold leading-snug transition-colors group-hover:underline"
         style={{ color: "var(--color-brand-black)" }}
       >
         <Link href={href} className="after:absolute after:inset-0">
