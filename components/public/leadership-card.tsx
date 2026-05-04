@@ -1,6 +1,5 @@
 /**
  * Card component for leadership/committee members.
- * No detail page in MVP — card is purely presentational.
  */
 
 import type { LeadershipMember } from "@/lib/data/public/leadership";
@@ -9,30 +8,58 @@ interface LeadershipCardProps {
   member: LeadershipMember;
 }
 
+/** Generate a consistent gradient from the member's name initial */
+function avatarGradient(name: string): string {
+  const colors = [
+    ["#0b3d2e", "#1a6b52"],
+    ["#0b3d2e", "#d4af37"],
+    ["#1a4a6b", "#2e8bb0"],
+    ["#4a1a6b", "#8b2eb0"],
+    ["#6b1a1a", "#b04040"],
+    ["#1a4a1a", "#4a8b40"],
+  ];
+  const idx = name.charCodeAt(0) % colors.length;
+  return `linear-gradient(135deg, ${colors[idx][0]}, ${colors[idx][1]})`;
+}
+
 export function LeadershipCard({ member }: LeadershipCardProps) {
+  const initial = member.name.charAt(0).toUpperCase();
+
   return (
-    <article className="flex flex-col items-center gap-4 rounded-xl border border-[--color-border] bg-[--color-bg-card] p-6 text-center">
-      {/* Avatar placeholder — replaced with Image in Phase 18 once media pipeline exists */}
-      <div
-        className="flex h-20 w-20 items-center justify-center rounded-full bg-[--color-brand-deep]/15 text-3xl font-bold text-[--color-brand-deep]"
-        aria-hidden="true"
-      >
-        {member.name.charAt(0)}
+    <article
+      className="group flex flex-col rounded-xl border bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+      style={{ borderColor: "#e5e7eb" }}
+    >
+      {/* Avatar */}
+      <div className="mb-3 flex items-center gap-3">
+        <div
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white shadow-sm"
+          style={{ background: avatarGradient(member.name) }}
+          aria-hidden="true"
+        >
+          {initial}
+        </div>
+        <div>
+          <h3
+            className="text-lg font-bold leading-tight"
+            style={{ color: "var(--color-brand-black)" }}
+          >
+            {member.name}
+          </h3>
+          {member.roleTitle && (
+            <p
+              className="mt-0.5 text-sm font-medium"
+              style={{ color: "var(--color-accent-gold)" }}
+            >
+              {member.roleTitle}
+            </p>
+          )}
+        </div>
       </div>
 
-      <div>
-        <h3 className="text-base font-semibold text-[--color-text-primary]">
-          {member.name}
-        </h3>
-        {member.roleTitle && (
-          <p className="mt-0.5 text-sm text-[--color-text-muted]">
-            {member.roleTitle}
-          </p>
-        )}
-      </div>
-
+      {/* Bio */}
       {member.bio && (
-        <p className="text-sm leading-relaxed text-[--color-text-secondary]">
+        <p className="line-clamp-3 text-xs leading-relaxed text-neutral-500">
           {member.bio}
         </p>
       )}

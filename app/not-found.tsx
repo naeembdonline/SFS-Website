@@ -3,7 +3,10 @@ import { defaultLocale } from "@/lib/i18n/config";
 
 export default function NotFound() {
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center gap-4 bg-[--color-brand-black] px-4 text-center">
+    <main
+      className="flex min-h-svh flex-col items-center justify-center gap-4 px-4 text-center"
+      style={{ backgroundColor: "var(--color-brand-black)" }}
+    >
       <p className="text-5xl font-bold text-white">404</p>
       <p className="text-base text-white/60">Page not found.</p>
       <Link

@@ -37,10 +37,10 @@ export function NotTranslated({
       role="status"
       aria-live="polite"
     >
-      <p className="text-2xl font-semibold text-[--color-text-primary]">
+      <p className="text-2xl font-semibold text-neutral-900">
         {dict.fallback.title}
       </p>
-      <p className="mt-3 text-[--color-text-muted]">
+      <p className="mt-3 text-neutral-500">
         {dict.fallback.message}
       </p>
 
@@ -50,7 +50,11 @@ export function NotTranslated({
             <li key={loc}>
               <Link
                 href={localePaths?.[loc] ?? `/${loc}${path}`}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[--color-brand-deep] px-4 py-1.5 text-sm font-medium text-[--color-brand-deep] transition-colors hover:bg-[--color-brand-deep] hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors hover:text-white"
+                style={{
+                  borderColor: "var(--color-brand-deep)",
+                  color: "var(--color-brand-deep)",
+                }}
               >
                 {dict.fallback.viewIn}{" "}
                 <span lang={loc}>{dict.locale[loc]}</span>

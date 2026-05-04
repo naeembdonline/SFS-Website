@@ -65,7 +65,7 @@ export async function getResourceList(
       .limit(limit)
       .offset(offset);
 
-    return rows.map((r) => ({
+    const result = rows.map((r) => ({
       id: r.id,
       kind: r.kind as ResourceKind,
       slug: r.slug,
@@ -75,8 +75,16 @@ export async function getResourceList(
       fileMediaId: r.fileMediaId ?? null,
       externalUrl: r.externalUrl ?? null,
     }));
+
+    if (result.length === 0) {
+      const { DEMO_RESOURCES } = await import("@/lib/data/demo");
+      return DEMO_RESOURCES[locale] ?? DEMO_RESOURCES.en;
+    }
+
+    return result;
   } catch {
-    return [];
+    const { DEMO_RESOURCES } = await import("@/lib/data/demo");
+    return DEMO_RESOURCES[locale] ?? DEMO_RESOURCES.en;
   }
 }
 
@@ -158,6 +166,21 @@ export async function getResourceBySlug(
       availableLocales: siblings.map((s) => s.locale as Locale),
     };
   } catch {
+    // DB unavailable — synthesise from demo list data
+    const { DEMO_RESOURCES } = await import("@/lib/data/demo");
+    const list = DEMO_RESOURCES[locale] ?? DEMO_RESOURCES.en ?? [];
+    const found = list.find((r) => r.slug === slug);
+    if (found) {
+      return {
+        ...found,
+        seoTitle: null,
+        metaDescription: found.description ?? null,
+        ogTitle: null,
+        ogDescription: null,
+        ogImageId: null,
+        availableLocales: [],
+      };
+    }
     return null;
   }
 }

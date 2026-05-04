@@ -81,6 +81,11 @@ export async function getPostList(
       .limit(limit)
       .offset(offset);
 
+    if (rows.length === 0) {
+      const { DEMO_NEWS, DEMO_BLOG } = await import("@/lib/data/demo");
+      const pool = type === "news" ? DEMO_NEWS : DEMO_BLOG;
+      return (pool[locale] ?? []).slice(offset, offset + limit);
+    }
     return rows.map((r) => ({
       id: r.id,
       type: r.type as PostType,
@@ -91,7 +96,9 @@ export async function getPostList(
       coverMediaId: r.coverMediaId ?? null,
     }));
   } catch {
-    return [];
+    const { DEMO_NEWS, DEMO_BLOG } = await import("@/lib/data/demo");
+    const pool = type === "news" ? DEMO_NEWS : DEMO_BLOG;
+    return (pool[locale] ?? []).slice(offset, offset + limit);
   }
 }
 
@@ -176,6 +183,28 @@ export async function getPostBySlug(
       availableLocales: siblings.map((s) => s.locale as Locale),
     };
   } catch {
+    // DB unavailable — fall back to demo list data, synthesising a PostDetail
+    const { DEMO_NEWS, DEMO_BLOG } = await import("@/lib/data/demo");
+    const source = type === "news" ? DEMO_NEWS : DEMO_BLOG;
+    // Try the requested locale first, then all locales
+    const allLists = [source[locale], ...Object.values(source).filter((_, i) => Object.keys(source)[i] !== locale)];
+    for (const list of allLists) {
+      if (!list) continue;
+      const found = list.find((p) => p.slug === slug);
+      if (found) {
+        return {
+          ...found,
+          body: found.excerpt ? `<p>${found.excerpt}</p>` : "<p>…</p>",
+          seoTitle: null,
+          metaDescription: found.excerpt ?? null,
+          ogTitle: null,
+          ogDescription: null,
+          ogImageId: null,
+          authorUserId: null,
+          availableLocales: [],
+        };
+      }
+    }
     return null;
   }
 }

@@ -7,7 +7,6 @@ import { getSiteSettings } from "@/lib/data/public/settings";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { breadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { Container } from "@/components/ui/container";
-import { SectionHeader } from "@/components/public/section-header";
 import { ResourceItem } from "@/components/public/resource-item";
 
 interface ResourcesPageProps {
@@ -20,12 +19,11 @@ export async function generateMetadata({
   const { locale } = await params;
   const dict = await getDictionary(locale);
   const settings = await getSiteSettings(locale);
-
   return buildMetadata({
     locale,
     path: "/resources",
     title: dict.nav.resources,
-    siteName: settings?.siteName,
+    siteName: settings?.siteName ?? "Sovereignty",
   });
 }
 
@@ -36,6 +34,12 @@ export default function ResourcesPage({ params }: ResourcesPageProps) {
     </Suspense>
   );
 }
+
+const PAGE_SUBTITLES: Record<Locale, string> = {
+  bn: "প্রতিবেদন, নীতিমালা ও গুরুত্বপূর্ণ দলিলপত্র",
+  en: "Reports, policies and important documents",
+  ar: "التقارير والسياسات والوثائق المهمة",
+};
 
 async function ResourcesContent({ params }: ResourcesPageProps) {
   const { locale } = await params;
@@ -54,9 +58,18 @@ async function ResourcesContent({ params }: ResourcesPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
       />
 
-      <Container className="py-12 sm:py-16">
-        <SectionHeader title={dict.nav.resources} />
+      {/* Page header */}
+      <section
+        className="border-b py-10 sm:py-14"
+        style={{ backgroundColor: "var(--color-brand-black)", borderColor: "rgba(255,255,255,0.08)" }}
+      >
+        <Container>
+          <h1 className="text-2xl font-bold text-white sm:text-3xl">{dict.nav.resources}</h1>
+          <p className="mt-3 text-lg text-white/60">{PAGE_SUBTITLES[locale]}</p>
+        </Container>
+      </section>
 
+      <Container className="py-14 sm:py-20">
         {resources.length > 0 ? (
           <ul className="flex flex-col gap-3">
             {resources.map((resource) => (
@@ -68,7 +81,7 @@ async function ResourcesContent({ params }: ResourcesPageProps) {
             ))}
           </ul>
         ) : (
-          <p className="text-[--color-text-muted]">—</p>
+          <p className="py-10 text-center text-neutral-400">—</p>
         )}
       </Container>
     </>

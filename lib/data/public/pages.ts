@@ -62,7 +62,10 @@ export async function getPage(
       .where(eq(schema.pages.key, key))
       .limit(1);
 
-    if (!row) return null;
+    if (!row) {
+      const { DEMO_PAGES } = await import("@/lib/data/demo");
+      return DEMO_PAGES[key]?.[locale] ?? null;
+    }
 
     return {
       id: row.id,
@@ -77,6 +80,7 @@ export async function getPage(
       ogImageId: row.ogImageId ?? null,
     };
   } catch {
-    return null;
+    const { DEMO_PAGES } = await import("@/lib/data/demo");
+    return DEMO_PAGES[key]?.[locale] ?? null;
   }
 }

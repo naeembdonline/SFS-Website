@@ -6,10 +6,12 @@ import { getDictionary } from "@/lib/i18n/dict";
 import { getSiteSettings } from "@/lib/data/public/settings";
 import { getPostList } from "@/lib/data/public/posts";
 import { getCampaignList } from "@/lib/data/public/campaigns";
+import { getLeadershipMembers } from "@/lib/data/public/leadership";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/json-ld";
 import { PostCard } from "@/components/public/post-card";
 import { CampaignCard } from "@/components/public/campaign-card";
+import { LeadershipCard } from "@/components/public/leadership-card";
 import { Container } from "@/components/ui/container";
 import { SectionHeader } from "@/components/public/section-header";
 
@@ -22,15 +24,22 @@ export async function generateMetadata({
 }: HomePageProps): Promise<Metadata> {
   const { locale } = await params;
   const settings = await getSiteSettings(locale);
-  const dict = await getDictionary(locale);
+  const siteName = settings?.siteName ?? "Sovereignty";
 
-  return buildMetadata({
+  const base = buildMetadata({
     locale,
     path: "",
-    title: settings?.siteName ?? dict.error.generic,
+    // Use site name as title so it renders as just "Sovereignty" not "Sovereignty | Sovereignty"
+    title: siteName,
     description: settings?.tagline ?? undefined,
-    siteName: settings?.siteName,
+    siteName,
   });
+
+  // Override title to use absolute form — bypasses the "%s | SiteName" template
+  return {
+    ...base,
+    title: { absolute: siteName },
+  };
 }
 
 export default function HomePage({ params }: HomePageProps) {
@@ -41,13 +50,108 @@ export default function HomePage({ params }: HomePageProps) {
   );
 }
 
+// Locale-aware static copy (used as fallback until settings DB is seeded)
+const HERO_COPY: Record<Locale, { badge: string; tagline: string; ctaJoin: string; ctaAbout: string }> = {
+  bn: {
+    badge: "ভবিষ্যৎ গড়ার আন্দোলন",
+    tagline:
+      "একটি সমৃদ্ধ ও সার্বভৌম ভবিষ্যতের অভিযাত্রায় আমরা ঐক্যবদ্ধ। ন্যায়বিচার, সাম্য এবং আত্মমর্যাদার ভিত্তিতে নতুন এক বাংলাদেশ গড়ার প্রত্যয়।",
+    ctaJoin: "প্রচারাভিযান",
+    ctaAbout: "আমাদের সম্পর্কে",
+  },
+  en: {
+    badge: "Building the Future",
+    tagline:
+      "We are united in the journey toward a prosperous and sovereign future. Committed to building a new Bangladesh on the foundations of justice, equality, and dignity.",
+    ctaJoin: "Campaigns",
+    ctaAbout: "About Us",
+  },
+  ar: {
+    badge: "بناء المستقبل",
+    tagline:
+      "نحن متحدون في رحلة نحو مستقبل مزدهر وسيادي. ملتزمون ببناء بنغلاديش جديدة على أسس العدالة والمساواة والكرامة.",
+    ctaJoin: "الحملات",
+    ctaAbout: "من نحن",
+  },
+};
+
+const MISSION_COPY: Record<Locale, { label: string; heading: string; p1: string; p2: string; cta: string }> = {
+  bn: {
+    label: "আমাদের লক্ষ্য",
+    heading: "সার্বভৌমত্ব এবং জনগণের অধিকার রক্ষায় আমরা অবিচল",
+    p1: "আমরা বিশ্বাস করি যে প্রতিটি নাগরিকের মর্যাদা এবং অধিকার একটি শক্তিশালী রাষ্ট্রের ভিত্তি। আমাদের সংগঠন এই লক্ষ্য অর্জনে কাজ করে যাচ্ছে যেখানে প্রতিটি কণ্ঠস্বর গুরুত্বপূর্ণ।",
+    p2: "রাজনীতি ও সমাজনীতিতে ইতিবাচক পরিবর্তনের মাধ্যমে আমরা একটি উন্নত ও আধুনিক রাষ্ট্রব্যবস্থা গড়ে তুলতে প্রতিশ্রুতিবদ্ধ।",
+    cta: "আমাদের নেতৃত্ব সম্পর্কে জানুন",
+  },
+  en: {
+    label: "Our Mission",
+    heading: "Unwavering in defending sovereignty and the rights of the people",
+    p1: "We believe that the dignity and rights of every citizen are the foundation of a strong state. Our organization works tirelessly toward this goal — a nation where every voice matters.",
+    p2: "Through positive change in politics and social policy, we are committed to building an advanced and modern state based on justice and the rule of law.",
+    cta: "Learn about our leadership",
+  },
+  ar: {
+    label: "مهمتنا",
+    heading: "ثابتون في الدفاع عن السيادة وحقوق الشعب",
+    p1: "نؤمن بأن كرامة وحقوق كل مواطن هي أساس الدولة القوية. تعمل منظمتنا دون كلل نحو هذا الهدف — أمة يهم فيها كل صوت.",
+    p2: "من خلال التغيير الإيجابي في السياسة والسياسة الاجتماعية، نحن ملتزمون ببناء دولة متقدمة وحديثة قائمة على العدالة وسيادة القانون.",
+    cta: "تعرف على قيادتنا",
+  },
+};
+
+const CTA_COPY: Record<Locale, { heading: string; body: string; btn: string }> = {
+  bn: {
+    heading: "আমাদের সাথে যোগ দিন",
+    body: "একটি শক্তিশালী ও সমৃদ্ধ দেশ গঠনে আপনার অংশগ্রহণ জরুরি। আজই আমাদের সাথে যুক্ত হয়ে পরিবর্তনের অংশ হোন।",
+    btn: "যোগাযোগ করুন",
+  },
+  en: {
+    heading: "Join Our Movement",
+    body: "Your participation is essential in building a strong and prosperous country. Join us today and be part of the change.",
+    btn: "Get in Touch",
+  },
+  ar: {
+    heading: "انضم إلى حركتنا",
+    body: "مشاركتك ضرورية في بناء دولة قوية ومزدهرة. انضم إلينا اليوم وكن جزءاً من التغيير.",
+    btn: "تواصل معنا",
+  },
+};
+
+const SECTION_LABELS: Record<Locale, { campaignsDesc: string; newsDesc: string; viewAll: string; allNews: string; leadershipDesc: string; leaders: string }> = {
+  bn: {
+    campaignsDesc: "চলমান বিভিন্ন কর্মসূচি এবং আমাদের লক্ষ্যসমূহ",
+    newsDesc: "সাম্প্রতিক আপডেট এবং আমাদের কার্যক্রমের খবরাখবর",
+    viewAll: "সবগুলো দেখুন",
+    allNews: "সকল সংবাদ",
+    leadershipDesc: "আমাদের অভিজ্ঞ ও নিবেদিতপ্রাণ নেতৃবৃন্দ",
+    leaders: "সকল নেতৃবৃন্দ",
+  },
+  en: {
+    campaignsDesc: "Our ongoing programs and the goals we are working toward",
+    newsDesc: "Latest updates and news about our activities",
+    viewAll: "View All",
+    allNews: "All News",
+    leadershipDesc: "Our experienced and dedicated leadership",
+    leaders: "All Leaders",
+  },
+  ar: {
+    campaignsDesc: "برامجنا الجارية والأهداف التي نعمل نحوها",
+    newsDesc: "آخر التحديثات والأخبار حول أنشطتنا",
+    viewAll: "عرض الكل",
+    allNews: "كل الأخبار",
+    leadershipDesc: "قيادتنا ذات الخبرة والتفاني",
+    leaders: "جميع القادة",
+  },
+};
+
 async function HomeContent({ params }: HomePageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
-  const [settings, recentNews, activeCampaigns] = await Promise.all([
+  const [settings, recentNews, activeCampaigns, leaders] = await Promise.all([
     getSiteSettings(locale),
     getPostList("news", locale, 3),
     getCampaignList(locale, 3),
+    getLeadershipMembers(locale),
   ]);
 
   const orgLd = organizationJsonLd({
@@ -59,6 +163,12 @@ async function HomeContent({ params }: HomePageProps) {
     locale,
   });
 
+  const hero = HERO_COPY[locale];
+  const mission = MISSION_COPY[locale];
+  const cta = CTA_COPY[locale];
+  const labels = SECTION_LABELS[locale];
+  const topLeaders = leaders.slice(0, 3);
+
   return (
     <>
       <script
@@ -66,107 +176,167 @@ async function HomeContent({ params }: HomePageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify([orgLd, siteLd]) }}
       />
 
-      {/* ── 1. Hero Section ───────────────────────────────────────── */}
-      <section className="relative flex min-h-[85vh] items-center overflow-hidden bg-[--color-brand-black] py-24 sm:py-32">
-        {/* Cinematic Background Effects */}
+      {/* ── 1. Hero ──────────────────────────────────────────────────── */}
+      <section
+        className="relative flex min-h-[70vh] items-center overflow-hidden py-16 sm:py-20"
+        style={{ backgroundColor: "var(--color-brand-black)" }}
+      >
+        {/* Radial glow */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(11,61,46,0.4)_0%,transparent_70%)]"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(11,61,46,0.55) 0%, transparent 70%)",
+          }}
         />
+        {/* Gold orb */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[--color-brand-deep] opacity-20 blur-[120px]"
+          className="pointer-events-none absolute -right-32 top-0 h-[500px] w-[500px] rounded-full opacity-10 blur-[120px]"
+          style={{ backgroundColor: "var(--color-accent-gold)" }}
         />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-[0.03]"
-          style={{ backgroundImage: 'url("/noise.png")' }}
-        />
-        
-        <Container className="relative">
+
+        <Container className="relative z-10">
           <div className="max-w-4xl">
-            <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 backdrop-blur-md">
-              <span className="h-2 w-2 rounded-full bg-[--color-accent-gold] shadow-[0_0_8px_var(--color-accent-gold)]" />
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/80">
-                {settings?.tagline ?? "Building the Future"}
+            {/* Badge */}
+            <div
+              className="mb-8 inline-flex items-center gap-3 rounded-full px-4 py-1.5"
+              style={{
+                border: "1px solid rgba(255,255,255,0.12)",
+                background: "rgba(255,255,255,0.05)",
+                backdropFilter: "blur(8px)",
+              }}
+            >
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{
+                  backgroundColor: "var(--color-accent-gold)",
+                  boxShadow: "0 0 8px var(--color-accent-gold)",
+                }}
+              />
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-white/75">
+                {hero.badge}
               </span>
             </div>
-            
-            <h1 className="text-5xl font-extrabold leading-[1.15] text-white sm:text-7xl lg:text-8xl">
+
+            {/* Heading */}
+            <h1 className="text-3xl font-bold leading-snug text-white sm:text-4xl">
               {settings?.siteName ?? "Sovereignty"}
             </h1>
-            
-            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-white/60 sm:text-xl">
-              একটি সমৃদ্ধ ও সার্বভৌম ভবিষ্যতের অভিযাত্রায় আমরা ঐক্যবদ্ধ। ন্যায়বিচার, সাম্য এবং আত্মমর্যাদার ভিত্তিতে নতুন এক বাংলাদেশ গড়ার প্রত্যয়।
+
+            {/* Sub-copy */}
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/60 sm:text-base">
+              {hero.tagline}
             </p>
-            
-            <div className="mt-12 flex flex-wrap gap-5">
+
+            {/* CTAs */}
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href={`/${locale}/campaigns`}
-                className="group relative inline-flex items-center justify-center overflow-hidden rounded-xl bg-[--color-accent-gold] px-8 py-4 text-sm font-bold text-[--color-brand-black] transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="group relative inline-flex items-center justify-center overflow-hidden rounded-lg px-6 py-2.5 text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                style={{
+                  backgroundColor: "var(--color-accent-gold)",
+                  color: "var(--color-brand-black)",
+                }}
               >
                 <span className="relative z-10">{dict.nav.campaigns}</span>
-                <div className="absolute inset-0 -translate-x-full bg-white/20 transition-transform duration-500 group-hover:translate-x-0" />
+                <div
+                  className="absolute inset-0 -translate-x-full transition-transform duration-500 group-hover:translate-x-0"
+                  style={{ backgroundColor: "rgba(255,255,255,0.18)" }}
+                />
               </Link>
               <Link
                 href={`/${locale}/about`}
-                className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/5 px-8 py-4 text-sm font-bold text-white backdrop-blur-sm transition-all hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-lg px-6 py-2.5 text-sm font-bold text-white transition-all"
+                style={{
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  background: "rgba(255,255,255,0.06)",
+                  backdropFilter: "blur(8px)",
+                }}
               >
                 {dict.nav.about}
               </Link>
             </div>
+
+            {/* Stats strip */}
+            <div className="mt-10 flex flex-wrap gap-8 border-t pt-8" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
+              {[
+                {
+                  value: locale === "bn" ? "৫০,০০০+" : "50,000+",
+                  label: locale === "en" ? "Members" : locale === "ar" ? "عضو" : "সদস্য",
+                },
+                {
+                  value: locale === "bn" ? "৬৪" : "64",
+                  label: locale === "en" ? "Districts" : locale === "ar" ? "مقاطعة" : "জেলা",
+                },
+                {
+                  value: locale === "bn" ? "২০+" : "20+",
+                  label: locale === "en" ? "Campaigns" : locale === "ar" ? "حملة" : "প্রচারণা",
+                },
+              ].map((stat) => (
+                <div key={stat.label}>
+                  <div className="text-2xl font-extrabold text-white">{stat.value}</div>
+                  <div className="mt-0.5 text-xs text-white/50">{stat.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </Container>
       </section>
 
-      {/* ── 2. Mission Intro ──────────────────────────────────────── */}
-      <section className="bg-white py-24 sm:py-32">
+      {/* ── 2. Mission ───────────────────────────────────────────────── */}
+      <section className="bg-white py-14 sm:py-20">
         <Container>
-          <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
-              <p className="mb-4 text-sm font-bold uppercase tracking-widest text-[--color-accent-gold]">
-                আমাদের লক্ষ্য
+              <p
+                className="mb-3 text-xs font-bold uppercase tracking-widest"
+                style={{ color: "var(--color-accent-gold)" }}
+              >
+                {mission.label}
               </p>
-              <h2 className="text-4xl font-bold leading-tight text-[--color-brand-black] sm:text-5xl">
-                সার্বভৌমত্ব এবং জনগণের অধিকার রক্ষায় আমরা অবিচল
+              <h2
+                className="text-xl font-bold leading-snug sm:text-2xl"
+                style={{ color: "var(--color-brand-black)" }}
+              >
+                {mission.heading}
               </h2>
             </div>
-            <div className="space-y-6 text-lg leading-relaxed text-neutral-600">
-              <p>
-                আমরা বিশ্বাস করি যে প্রতিটি নাগরিকের মর্যাদা এবং অধিকার একটি শক্তিশালী রাষ্ট্রের ভিত্তি। আমাদের সংগঠন এই লক্ষ্য অর্জনে কাজ করে যাচ্ছে যেখানে প্রতিটি কণ্ঠস্বর গুরুত্বপূর্ণ।
-              </p>
-              <p>
-                রাজনীতি ও সমাজনীতিতে ইতিবাচক পরিবর্তনের মাধ্যমে আমরা একটি উন্নত ও আধুনিক রাষ্ট্রব্যবস্থা গড়ে তুলতে প্রতিশ্রুতিবদ্ধ।
-              </p>
+            <div className="space-y-3 text-base leading-relaxed text-neutral-600">
+              <p>{mission.p1}</p>
+              <p>{mission.p2}</p>
               <Link
                 href={`/${locale}/leadership`}
-                className="inline-flex items-center gap-2 font-bold text-[--color-brand-deep] hover:underline"
+                className="inline-flex items-center gap-2 font-bold hover:underline"
+                style={{ color: "var(--color-brand-deep)" }}
               >
-                আমাদের নেতৃত্ব সম্পর্কে জানুন <span>→</span>
+                {mission.cta} <span aria-hidden="true">→</span>
               </Link>
             </div>
           </div>
         </Container>
       </section>
 
-      {/* ── 3. Active Campaigns (Subtle Tinted) ───────────────────── */}
+      {/* ── 3. Active Campaigns ──────────────────────────────────────── */}
       {activeCampaigns.length > 0 && (
-        <section className="bg-neutral-50 py-24 sm:py-32">
+        <section className="py-14 sm:py-20" style={{ backgroundColor: "#f9fafb" }}>
           <Container>
-            <div className="mb-16 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-              <SectionHeader 
-                title={dict.nav.campaigns} 
-                description="চলমান বিভিন্ন কর্মসূচি এবং আমাদের লক্ষ্যসমূহ"
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <SectionHeader
+                title={dict.nav.campaigns}
+                description={labels.campaignsDesc}
                 className="max-w-xl"
               />
               <Link
                 href={`/${locale}/campaigns`}
-                className="inline-flex h-12 items-center justify-center rounded-lg border border-neutral-200 bg-white px-6 text-sm font-bold text-neutral-900 transition-colors hover:bg-neutral-50"
+                className="inline-flex h-11 items-center justify-center rounded-lg border px-6 text-sm font-bold text-neutral-900 transition-colors hover:bg-neutral-50"
+                style={{ borderColor: "#e5e7eb", backgroundColor: "#fff" }}
               >
-                সবগুলো দেখুন
+                {labels.viewAll}
               </Link>
             </div>
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
               {activeCampaigns.map((c) => (
                 <CampaignCard key={c.id} campaign={c} locale={locale} />
               ))}
@@ -175,24 +345,25 @@ async function HomeContent({ params }: HomePageProps) {
         </section>
       )}
 
-      {/* ── 4. News Section (White) ───────────────────────────────── */}
+      {/* ── 4. News ──────────────────────────────────────────────────── */}
       {recentNews.length > 0 && (
-        <section className="bg-white py-24 sm:py-32">
+        <section className="bg-white py-14 sm:py-20">
           <Container>
-            <div className="mb-16 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-              <SectionHeader 
-                title={dict.nav.news} 
-                description="সাম্প্রতিক আপডেট এবং আমাদের কার্যক্রমের খবরাখবর"
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <SectionHeader
+                title={dict.nav.news}
+                description={labels.newsDesc}
                 className="max-w-xl"
               />
               <Link
                 href={`/${locale}/news`}
-                className="inline-flex h-12 items-center justify-center rounded-lg border border-neutral-200 bg-white px-6 text-sm font-bold text-neutral-900 transition-colors hover:bg-neutral-50"
+                className="inline-flex h-11 items-center justify-center rounded-lg border px-6 text-sm font-bold text-neutral-900 transition-colors hover:bg-neutral-50"
+                style={{ borderColor: "#e5e7eb", backgroundColor: "#fff" }}
               >
-                সকল সংবাদ
+                {labels.allNews}
               </Link>
             </div>
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
               {recentNews.map((p) => (
                 <PostCard key={p.id} post={p} type="news" locale={locale} />
               ))}
@@ -201,25 +372,58 @@ async function HomeContent({ params }: HomePageProps) {
         </section>
       )}
 
-      {/* ── 5. Call to Action ─────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-[--color-brand-deep] py-24 sm:py-32">
-        <div aria-hidden="true" className="absolute inset-0 opacity-10">
-           <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-white blur-3xl" />
-           <div className="absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-[--color-accent-gold] blur-3xl" />
+      {/* ── 5. Leadership preview ────────────────────────────────────── */}
+      {topLeaders.length > 0 && (
+        <section className="py-14 sm:py-20" style={{ backgroundColor: "#f9fafb" }}>
+          <Container>
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <SectionHeader
+                title={dict.nav.leadership}
+                description={labels.leadershipDesc}
+                className="max-w-xl"
+              />
+              <Link
+                href={`/${locale}/leadership`}
+                className="inline-flex h-11 items-center justify-center rounded-lg border px-6 text-sm font-bold text-neutral-900 transition-colors hover:bg-neutral-50"
+                style={{ borderColor: "#e5e7eb", backgroundColor: "#fff" }}
+              >
+                {labels.leaders}
+              </Link>
+            </div>
+            <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+              {topLeaders.map((m) => (
+                <LeadershipCard key={m.id} member={m} />
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
+
+      {/* ── 6. CTA banner ────────────────────────────────────────────── */}
+      <section
+        className="relative overflow-hidden py-14 sm:py-20"
+        style={{ backgroundColor: "var(--color-brand-deep)" }}
+      >
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.08]">
+          <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-white blur-3xl" />
+          <div
+            className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full blur-3xl"
+            style={{ backgroundColor: "var(--color-accent-gold)" }}
+          />
         </div>
         <Container className="relative text-center">
-          <h2 className="text-4xl font-bold text-white sm:text-5xl">
-            আমাদের সাথে যোগ দিন
-          </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-white/70">
-            একটি শক্তিশালী ও সমৃদ্ধ দেশ গঠনে আপনার অংশগ্রহণ জরুরি। আজই আমাদের সাথে যুক্ত হয়ে পরিবর্তনের অংশ হোন।
-          </p>
-          <div className="mt-10">
+          <h2 className="text-2xl font-bold text-white sm:text-3xl">{cta.heading}</h2>
+          <p className="mx-auto mt-4 max-w-xl text-sm text-white/70 sm:text-base">{cta.body}</p>
+          <div className="mt-8">
             <Link
               href={`/${locale}/contact`}
-              className="inline-flex rounded-xl bg-[--color-accent-gold] px-10 py-4 text-sm font-bold text-[--color-brand-black] shadow-lg shadow-black/20 transition-all hover:scale-105"
+              className="inline-flex rounded-lg px-8 py-3 text-sm font-bold shadow-lg shadow-black/20 transition-all hover:scale-105"
+              style={{
+                backgroundColor: "var(--color-accent-gold)",
+                color: "var(--color-brand-black)",
+              }}
             >
-              যোগাযোগ করুন
+              {cta.btn}
             </Link>
           </div>
         </Container>

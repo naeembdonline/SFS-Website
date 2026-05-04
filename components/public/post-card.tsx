@@ -13,19 +13,37 @@ interface PostCardProps {
   locale: Locale;
 }
 
+const READ_MORE: Record<Locale, string> = {
+  bn: "আরও পড়ুন",
+  en: "Read more",
+  ar: "اقرأ المزيد",
+};
+
 export function PostCard({ post, type, locale }: PostCardProps) {
   const href = `/${locale}/${type}/${post.slug}`;
+  const readMore = READ_MORE[locale] ?? READ_MORE.en;
 
   return (
-    <article className="group flex flex-col gap-4 rounded-xl border border-neutral-100/10 bg-[--color-bg-card] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[--color-accent-gold]/30 hover:shadow-lg">
-      <div className="flex items-center gap-3 text-xs uppercase tracking-widest">
+    <article
+      className="group relative flex flex-col gap-3 rounded-xl border bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+      style={{ borderColor: "#e5e7eb" }}
+    >
+      {/* Meta row */}
+      <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-widest">
         <span
-          className="inline-block rounded-md bg-[--color-brand-deep]/10 px-2 py-1 font-bold text-[--color-brand-deep]"
+          className="rounded-md px-2 py-1"
+          style={{
+            backgroundColor: "rgba(11,61,46,0.08)",
+            color: "var(--color-brand-deep)",
+          }}
         >
           {type}
         </span>
         {post.publishedAt && (
-          <time dateTime={post.publishedAt.toISOString()} className="text-[--color-text-muted]">
+          <time
+            dateTime={post.publishedAt.toISOString()}
+            className="text-neutral-400"
+          >
             {post.publishedAt.toLocaleDateString(locale, {
               year: "numeric",
               month: "short",
@@ -35,21 +53,35 @@ export function PostCard({ post, type, locale }: PostCardProps) {
         )}
       </div>
 
-      <h3 className="text-xl font-bold leading-tight text-[--color-text-primary] transition-colors group-hover:text-[--color-brand-deep]">
+      {/* Title */}
+      <h3
+        className="text-lg font-bold leading-snug transition-colors group-hover:underline"
+        style={{ color: "var(--color-brand-black)" }}
+      >
         <Link href={href} className="after:absolute after:inset-0">
           {post.title}
         </Link>
       </h3>
 
+      {/* Excerpt */}
       {post.excerpt && (
-        <p className="line-clamp-3 text-sm leading-relaxed text-[--color-text-secondary]">
+        <p className="line-clamp-3 text-sm leading-relaxed text-neutral-500">
           {post.excerpt}
         </p>
       )}
 
-      <div className="mt-auto flex items-center gap-2 pt-2 text-sm font-bold text-[--color-accent-gold]">
-        <span className="uppercase tracking-widest">আরও পড়ুন</span>
-        <span className="transition-transform group-hover:translate-x-1">→</span>
+      {/* CTA */}
+      <div
+        className="mt-auto flex items-center gap-1.5 pt-2 text-xs font-bold uppercase tracking-widest"
+        style={{ color: "var(--color-accent-gold)" }}
+      >
+        <span>{readMore}</span>
+        <span
+          className="inline-block transition-transform group-hover:translate-x-1"
+          aria-hidden="true"
+        >
+          →
+        </span>
       </div>
     </article>
   );

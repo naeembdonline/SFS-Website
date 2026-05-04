@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dict";
+import { getSiteSettings } from "@/lib/data/public/settings";
 
 interface FooterProps {
   locale: Locale;
@@ -10,24 +11,56 @@ interface FooterProps {
 
 const currentYear = new Date().getFullYear();
 
-export function Footer({ locale, dict }: FooterProps) {
+export async function Footer({ locale, dict }: FooterProps) {
+  const settings = await getSiteSettings(locale);
+  const siteName = settings?.siteName ?? "Sovereignty";
+
   return (
-    <footer className="bg-brand-black border-t border-white/8">
+    <footer
+      className="border-t"
+      style={{
+        backgroundColor: "var(--color-brand-black)",
+        borderColor: "rgba(255,255,255,0.08)",
+      }}
+    >
       <Container>
-        {/* Main footer grid */}
-        <div className="grid grid-cols-1 gap-8 py-12 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Identity */}
-          <div className="flex flex-col gap-3">
-            <span className="text-base font-semibold text-white">Sovereignty</span>
-            <p className="text-sm leading-relaxed text-white/60 max-w-xs">
-              {/* Site tagline rendered from settings in a future phase */}
-            </p>
+        {/* Main grid */}
+        <div className="grid grid-cols-1 gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Brand */}
+          <div className="flex flex-col gap-4 lg:col-span-1">
+            <Link
+              href={`/${locale}`}
+              className="text-xl font-bold text-white transition-opacity hover:opacity-80"
+            >
+              {siteName}
+            </Link>
+            {settings?.tagline && (
+              <p className="text-sm leading-relaxed text-white/50 max-w-xs">
+                {settings.tagline}
+              </p>
+            )}
+            {/* Socials */}
+            {settings?.socials && settings.socials.length > 0 && (
+              <div className="flex flex-wrap gap-3 mt-2">
+                {settings.socials.map((s) => (
+                  <a
+                    key={s.platform}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-semibold text-white/40 transition-colors hover:text-white/80"
+                  >
+                    {s.platform}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Organization links */}
+          {/* Organization */}
           <div className="flex flex-col gap-3">
-            <span className="text-xs font-semibold uppercase tracking-widest text-white/40">
-              {/* Section heading — future: from settings */}
+            <span className="text-xs font-bold uppercase tracking-widest text-white/30 mb-1">
+              {locale === "ar" ? "المنظمة" : locale === "en" ? "Organization" : "সংগঠন"}
             </span>
             <nav aria-label="Footer organization links">
               <ul className="flex flex-col gap-2">
@@ -39,7 +72,7 @@ export function Footer({ locale, dict }: FooterProps) {
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="text-sm text-white/60 transition-colors hover:text-white"
+                      className="text-sm text-white/55 transition-colors hover:text-white"
                     >
                       {item.label}
                     </Link>
@@ -49,20 +82,23 @@ export function Footer({ locale, dict }: FooterProps) {
             </nav>
           </div>
 
-          {/* Publishing links */}
+          {/* Content */}
           <div className="flex flex-col gap-3">
-            <nav aria-label="Footer publishing links">
+            <span className="text-xs font-bold uppercase tracking-widest text-white/30 mb-1">
+              {locale === "ar" ? "المحتوى" : locale === "en" ? "Content" : "বিষয়বস্তু"}
+            </span>
+            <nav aria-label="Footer content links">
               <ul className="flex flex-col gap-2">
                 {[
+                  { href: `/${locale}/campaigns`, label: dict.nav.campaigns },
                   { href: `/${locale}/news`, label: dict.nav.news },
                   { href: `/${locale}/blog`, label: dict.nav.blog },
-                  { href: `/${locale}/campaigns`, label: dict.nav.campaigns },
                   { href: `/${locale}/resources`, label: dict.nav.resources },
                 ].map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="text-sm text-white/60 transition-colors hover:text-white"
+                      className="text-sm text-white/55 transition-colors hover:text-white"
                     >
                       {item.label}
                     </Link>
@@ -71,19 +107,50 @@ export function Footer({ locale, dict }: FooterProps) {
               </ul>
             </nav>
           </div>
+
+          {/* Contact info */}
+          <div className="flex flex-col gap-3">
+            <span className="text-xs font-bold uppercase tracking-widest text-white/30 mb-1">
+              {locale === "ar" ? "التواصل" : locale === "en" ? "Contact" : "যোগাযোগ"}
+            </span>
+            <div className="flex flex-col gap-2 text-sm text-white/55">
+              {settings?.contactEmail && (
+                <a
+                  href={`mailto:${settings.contactEmail}`}
+                  className="transition-colors hover:text-white"
+                >
+                  {settings.contactEmail}
+                </a>
+              )}
+              {settings?.contactPhone && (
+                <a
+                  href={`tel:${settings.contactPhone}`}
+                  className="transition-colors hover:text-white"
+                >
+                  {settings.contactPhone}
+                </a>
+              )}
+              {settings?.address && (
+                <p className="text-white/40">{settings.address}</p>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Bottom strip */}
-        <div className="flex flex-col gap-2 border-t border-white/8 py-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-white/40">
-            © {currentYear} Sovereignty. {dict.footer.rights}.
+        <div
+          className="flex flex-col gap-3 border-t py-6 sm:flex-row sm:items-center sm:justify-between"
+          style={{ borderColor: "rgba(255,255,255,0.08)" }}
+        >
+          <p className="text-xs text-white/35">
+            © {currentYear} {siteName}. {dict.footer.rights}.
           </p>
           <nav aria-label="Legal links">
-            <ul className="flex items-center gap-4">
+            <ul className="flex items-center gap-5">
               <li>
                 <Link
                   href={`/${locale}/privacy`}
-                  className="text-xs text-white/40 transition-colors hover:text-white/70"
+                  className="text-xs text-white/35 transition-colors hover:text-white/65"
                 >
                   {dict.footer.privacy}
                 </Link>
@@ -91,7 +158,7 @@ export function Footer({ locale, dict }: FooterProps) {
               <li>
                 <Link
                   href={`/${locale}/terms`}
-                  className="text-xs text-white/40 transition-colors hover:text-white/70"
+                  className="text-xs text-white/35 transition-colors hover:text-white/65"
                 >
                   {dict.footer.terms}
                 </Link>

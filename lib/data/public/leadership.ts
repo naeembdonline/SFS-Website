@@ -55,6 +55,10 @@ export async function getLeadershipMembers(
       )
       .orderBy(asc(schema.leadership.displayOrder));
 
+    if (rows.length === 0) {
+      const { DEMO_LEADERSHIP } = await import("@/lib/data/demo");
+      return DEMO_LEADERSHIP[locale] ?? [];
+    }
     return rows.map((r) => ({
       id: r.id,
       name: r.name,
@@ -64,6 +68,7 @@ export async function getLeadershipMembers(
       displayOrder: Number(r.displayOrder),
     }));
   } catch {
-    return [];
+    const { DEMO_LEADERSHIP } = await import("@/lib/data/demo");
+    return DEMO_LEADERSHIP[locale] ?? [];
   }
 }

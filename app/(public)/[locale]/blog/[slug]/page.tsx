@@ -92,10 +92,16 @@ async function BlogDetailContent({
         }}
       />
 
-      <section className="border-b border-[--color-border] bg-[--color-brand-black] py-14">
+      <section
+        className="border-b py-14"
+        style={{ backgroundColor: "var(--color-brand-black)", borderColor: "rgba(255,255,255,0.08)" }}
+      >
         <Container>
           <div className="max-w-3xl">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[--color-accent-gold]">
+            <p
+              className="mb-3 text-xs font-semibold uppercase tracking-widest"
+              style={{ color: "var(--color-accent-gold)" }}
+            >
               {dict.nav.blog}
               {post.publishedAt && (
                 <>

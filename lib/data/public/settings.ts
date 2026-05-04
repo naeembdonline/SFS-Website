@@ -59,7 +59,10 @@ export async function getSiteSettings(
       .where(eq(schema.siteSettings.id, 1))
       .limit(1);
 
-    if (!row) return null;
+    if (!row) {
+      const { DEMO_SETTINGS } = await import("@/lib/data/demo");
+      return DEMO_SETTINGS[locale] ?? DEMO_SETTINGS.bn;
+    }
 
     return {
       siteName: row.siteName,
@@ -71,8 +74,8 @@ export async function getSiteSettings(
       socials: (row.socials as { platform: string; url: string }[]) ?? [],
     };
   } catch {
-    // DB unavailable at build time — cache will be populated on first request
-    return null;
+    const { DEMO_SETTINGS } = await import("@/lib/data/demo");
+    return DEMO_SETTINGS[locale] ?? DEMO_SETTINGS.bn;
   }
 }
 

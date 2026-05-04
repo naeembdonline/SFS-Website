@@ -72,9 +72,12 @@ async function AboutContent({ params }: AboutPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
       />
 
-      <section className="border-b border-[--color-border] bg-[--color-brand-black] py-16">
+      <section
+        className="border-b py-10 sm:py-14"
+        style={{ backgroundColor: "var(--color-brand-black)", borderColor: "rgba(255,255,255,0.08)" }}
+      >
         <Container>
-          <h1 className="text-4xl font-bold text-white sm:text-5xl">
+          <h1 className="text-2xl font-bold text-white sm:text-3xl">
             {page.title}
           </h1>
         </Container>

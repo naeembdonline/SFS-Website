@@ -93,16 +93,20 @@ async function CampaignDetailContent({
         }}
       />
 
-      <section className="border-b border-[--color-border] bg-[--color-brand-black] py-14">
+      <section
+        className="border-b py-14"
+        style={{ backgroundColor: "var(--color-brand-black)", borderColor: "rgba(255,255,255,0.08)" }}
+      >
         <Container>
           <div className="max-w-3xl">
             <div className="mb-3 flex items-center gap-3">
               <span
-                className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide ${
+                className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide"
+                style={
                   isActive
-                    ? "bg-[--color-accent-green]/20 text-[--color-accent-green]"
-                    : "bg-white/10 text-white/60"
-                }`}
+                    ? { backgroundColor: "rgba(46,204,113,0.15)", color: "#2ecc71" }
+                    : { backgroundColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)" }
+                }
               >
                 {campaign.statusLifecycle}
               </span>
@@ -136,8 +140,14 @@ async function CampaignDetailContent({
           <Prose html={campaign.body} />
 
           {campaign.goals && (
-            <div className="mt-10 rounded-xl border border-[--color-brand-deep]/30 bg-[--color-brand-deep]/5 p-6">
-              <h2 className="mb-4 text-lg font-semibold text-[--color-brand-deep]">
+            <div
+              className="mt-10 rounded-xl border p-6"
+              style={{ borderColor: "rgba(11,61,46,0.3)", backgroundColor: "rgba(11,61,46,0.05)" }}
+            >
+              <h2
+                className="mb-4 text-lg font-semibold"
+                style={{ color: "var(--color-brand-deep)" }}
+              >
                 Goals
               </h2>
               <Prose html={campaign.goals} />

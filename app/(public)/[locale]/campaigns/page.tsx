@@ -7,41 +7,42 @@ import { getSiteSettings } from "@/lib/data/public/settings";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { breadcrumbJsonLd } from "@/lib/seo/json-ld";
 import { Container } from "@/components/ui/container";
-import { SectionHeader } from "@/components/public/section-header";
 import { CampaignCard } from "@/components/public/campaign-card";
 
 interface CampaignsListPageProps {
   params: Promise<{ locale: Locale }>;
 }
 
-export async function generateMetadata({
-  params,
-}: CampaignsListPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: CampaignsListPageProps): Promise<Metadata> {
   const { locale } = await params;
   const dict = await getDictionary(locale);
   const settings = await getSiteSettings(locale);
-
-  return buildMetadata({
-    locale,
-    path: "/campaigns",
-    title: dict.nav.campaigns,
-    siteName: settings?.siteName,
-  });
+  return buildMetadata({ locale, path: "/campaigns", title: dict.nav.campaigns, siteName: settings?.siteName ?? "Sovereignty" });
 }
 
-export default function CampaignsListPage({
-  params,
-}: CampaignsListPageProps) {
-  return (
-    <Suspense fallback={null}>
-      <CampaignsListContent params={params} />
-    </Suspense>
-  );
+export default function CampaignsListPage({ params }: CampaignsListPageProps) {
+  return <Suspense fallback={null}><CampaignsListContent params={params} /></Suspense>;
 }
 
-async function CampaignsListContent({
-  params,
-}: CampaignsListPageProps) {
+const PAGE_SUBTITLES: Record<Locale, string> = {
+  bn: "আমাদের চলমান ও সমাপ্ত প্রচারাভিযান সমূহ",
+  en: "Our ongoing and completed campaigns",
+  ar: "حملاتنا الجارية والمكتملة",
+};
+
+const ACTIVE_LABEL: Record<Locale, string> = {
+  bn: "চলমান প্রচারাভিযান",
+  en: "Active Campaigns",
+  ar: "الحملات النشطة",
+};
+
+const PAST_LABEL: Record<Locale, string> = {
+  bn: "সমাপ্ত প্রচারাভিযান",
+  en: "Past Campaigns",
+  ar: "الحملات السابقة",
+};
+
+async function CampaignsListContent({ params }: CampaignsListPageProps) {
   const { locale } = await params;
   const dict = await getDictionary(locale);
   const campaigns = await getCampaignList(locale, 24);
@@ -56,18 +57,27 @@ async function CampaignsListContent({
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
 
-      <Container className="py-12 sm:py-16">
-        <SectionHeader title={dict.nav.campaigns} />
+      {/* Page header */}
+      <section
+        className="border-b py-10 sm:py-14"
+        style={{ backgroundColor: "var(--color-brand-black)", borderColor: "rgba(255,255,255,0.08)" }}
+      >
+        <Container>
+          <h1 className="text-2xl font-bold text-white sm:text-3xl">{dict.nav.campaigns}</h1>
+          <p className="mt-3 text-lg text-white/60">{PAGE_SUBTITLES[locale]}</p>
+        </Container>
+      </section>
 
+      <Container className="py-14 sm:py-20 space-y-16">
         {active.length > 0 && (
-          <section className="mb-14">
-            <h2 className="mb-6 text-xl font-semibold text-[--color-text-primary]">
-              Active
+          <section>
+            <h2
+              className="mb-8 text-2xl font-bold"
+              style={{ color: "var(--color-brand-black)" }}
+            >
+              {ACTIVE_LABEL[locale]}
             </h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {active.map((c) => (
@@ -79,8 +89,8 @@ async function CampaignsListContent({
 
         {past.length > 0 && (
           <section>
-            <h2 className="mb-6 text-xl font-semibold text-[--color-text-primary]">
-              Past
+            <h2 className="mb-8 text-2xl font-bold text-neutral-400">
+              {PAST_LABEL[locale]}
             </h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {past.map((c) => (
@@ -91,7 +101,7 @@ async function CampaignsListContent({
         )}
 
         {campaigns.length === 0 && (
-          <p className="text-[--color-text-muted]">—</p>
+          <p className="py-10 text-center text-neutral-400">—</p>
         )}
       </Container>
     </>

@@ -53,51 +53,51 @@ export function SubmissionForm({
     <>
       <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
 
-      <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-[--color-border] p-5">
-        <h3 className="text-base font-semibold text-[--color-text-primary]">
+      <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-neutral-200 p-5">
+        <h3 className="text-base font-semibold text-neutral-900">
           {kind === "contact" ? "Contact us" : "Advisory submission"}
         </h3>
 
-        <label className="block text-sm font-medium text-[--color-text-primary]">
+        <label className="block text-sm font-medium text-neutral-900">
           Name
           <input
             name="name"
             type="text"
             required
             dir={locale === "ar" ? "rtl" : "ltr"}
-            className="mt-1 w-full rounded-md border border-[--color-border] px-3 py-2"
+            className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2"
           />
         </label>
 
-        <label className="block text-sm font-medium text-[--color-text-primary]">
+        <label className="block text-sm font-medium text-neutral-900">
           Email
           <input
             name="email"
             type="email"
             required
             dir="ltr"
-            className="mt-1 w-full rounded-md border border-[--color-border] px-3 py-2"
+            className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2"
           />
         </label>
 
-        <label className="block text-sm font-medium text-[--color-text-primary]">
+        <label className="block text-sm font-medium text-neutral-900">
           Subject (optional)
           <input
             name="subject"
             type="text"
             dir={locale === "ar" ? "rtl" : "ltr"}
-            className="mt-1 w-full rounded-md border border-[--color-border] px-3 py-2"
+            className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2"
           />
         </label>
 
-        <label className="block text-sm font-medium text-[--color-text-primary]">
+        <label className="block text-sm font-medium text-neutral-900">
           Message
           <textarea
             name="message"
             required
             rows={5}
             dir={locale === "ar" ? "rtl" : "ltr"}
-            className="mt-1 w-full rounded-md border border-[--color-border] px-3 py-2"
+            className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2"
           />
         </label>
 
@@ -117,12 +117,13 @@ export function SubmissionForm({
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md bg-[--color-brand-deep] px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+          className="rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+          style={{ backgroundColor: "var(--color-brand-deep)" }}
         >
           {pending ? "Submitting..." : "Submit"}
         </button>
 
-        {message && <p className="text-sm text-[--color-text-secondary]">{message}</p>}
+        {message && <p className="text-sm text-neutral-600">{message}</p>}
       </form>
     </>
   );
