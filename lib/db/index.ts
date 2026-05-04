@@ -25,9 +25,9 @@ if (!process.env.DATABASE_URL && !isBuild) {
   throw new Error("DATABASE_URL environment variable is not set");
 }
 
-const driver =
-  process.env.DATABASE_DRIVER ??
-  (process.env.NODE_ENV === "production" ? "neon" : "pg");
+// Default to "pg" (self-hosted PostgreSQL on VPS).
+// Set DATABASE_DRIVER=neon to use Neon serverless instead.
+const driver = process.env.DATABASE_DRIVER ?? "pg";
 
 type AppDb = NodePgDatabase<typeof schema>;
 
@@ -39,6 +39,14 @@ function createDb(): AppDb {
 
   const pool = new Pool({
     connectionString: databaseUrl,
+    max: Number(process.env.DATABASE_POOL_MAX ?? 10),
+    idleTimeoutMillis: Number(process.env.DATABASE_IDLE_TIMEOUT_MS ?? 30000),
+    connectionTimeoutMillis: Number(process.env.DATABASE_CONNECT_TIMEOUT_MS ?? 5000),
+    ssl: process.env.DATABASE_SSL === "true" ? { rejectUnauthorized: false } : undefined,
+  });
+
+  pool.on("error", (err) => {
+    console.error("[db] Unexpected pool error:", err);
   });
 
   return drizzlePg(pool, { schema });

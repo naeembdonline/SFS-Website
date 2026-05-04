@@ -44,49 +44,53 @@ export interface AdminPageListItem {
 // ─── List ────────────────────────────────────────────────────────────────────
 
 export async function getAdminPageList(): Promise<AdminPageListItem[]> {
-  const rows = await db
-    .select({
-      id: schema.pages.id,
-      key: schema.pages.key,
-      locale: schema.pageTranslations.locale,
-      title: schema.pageTranslations.title,
-      status: schema.pageTranslations.status,
-    })
-    .from(schema.pages)
-    .leftJoin(
-      schema.pageTranslations,
-      eq(schema.pageTranslations.pageId, schema.pages.id)
-    );
+  try {
+    const rows = await db
+      .select({
+        id: schema.pages.id,
+        key: schema.pages.key,
+        locale: schema.pageTranslations.locale,
+        title: schema.pageTranslations.title,
+        status: schema.pageTranslations.status,
+      })
+      .from(schema.pages)
+      .leftJoin(
+        schema.pageTranslations,
+        eq(schema.pageTranslations.pageId, schema.pages.id)
+      );
 
-  const map = new Map<number, AdminPageListItem>();
+    const map = new Map<number, AdminPageListItem>();
 
-  for (const row of rows) {
-    if (!map.has(row.id)) {
-      map.set(row.id, {
-        id: row.id,
-        key: row.key as PageKey,
-        bn: { status: "missing", title: null },
-        en: { status: "missing", title: null },
-        ar: { status: "missing", title: null },
-      });
-    }
-    if (row.locale && row.status) {
-      const item = map.get(row.id)!;
-      const loc = row.locale as Locale;
-      if (loc === "bn" || loc === "en" || loc === "ar") {
-        item[loc] = {
-          status: row.status as "draft" | "published",
-          title: row.title ?? null,
-        };
+    for (const row of rows) {
+      if (!map.has(row.id)) {
+        map.set(row.id, {
+          id: row.id,
+          key: row.key as PageKey,
+          bn: { status: "missing", title: null },
+          en: { status: "missing", title: null },
+          ar: { status: "missing", title: null },
+        });
+      }
+      if (row.locale && row.status) {
+        const item = map.get(row.id)!;
+        const loc = row.locale as Locale;
+        if (loc === "bn" || loc === "en" || loc === "ar") {
+          item[loc] = {
+            status: row.status as "draft" | "published",
+            title: row.title ?? null,
+          };
+        }
       }
     }
-  }
 
-  // Return in a stable order matching the PAGE_KEYS list
-  const PAGE_ORDER: PageKey[] = ["home", "about", "contact", "privacy", "terms"];
-  return Array.from(map.values()).sort(
-    (a, b) => PAGE_ORDER.indexOf(a.key) - PAGE_ORDER.indexOf(b.key)
-  );
+    // Return in a stable order matching the PAGE_KEYS list
+    const PAGE_ORDER: PageKey[] = ["home", "about", "contact", "privacy", "terms"];
+    return Array.from(map.values()).sort(
+      (a, b) => PAGE_ORDER.indexOf(a.key) - PAGE_ORDER.indexOf(b.key)
+    );
+  } catch {
+    return [];
+  }
 }
 
 // ─── Detail ───────────────────────────────────────────────────────────────────
@@ -94,62 +98,66 @@ export async function getAdminPageList(): Promise<AdminPageListItem[]> {
 export async function getAdminPageById(
   pageId: number
 ): Promise<AdminPageDetail | null> {
-  const [page] = await db
-    .select()
-    .from(schema.pages)
-    .where(eq(schema.pages.id, pageId))
-    .limit(1);
+  try {
+    const [page] = await db
+      .select()
+      .from(schema.pages)
+      .where(eq(schema.pages.id, pageId))
+      .limit(1);
 
-  if (!page) return null;
+    if (!page) return null;
 
-  const translationRows = await db
-    .select()
-    .from(schema.pageTranslations)
-    .where(eq(schema.pageTranslations.pageId, pageId));
+    const translationRows = await db
+      .select()
+      .from(schema.pageTranslations)
+      .where(eq(schema.pageTranslations.pageId, pageId));
 
-  const translationMap = new Map(translationRows.map((t) => [t.locale, t]));
+    const translationMap = new Map(translationRows.map((t) => [t.locale, t]));
 
-  const translations: AdminPageTranslation[] = locales.map((locale) => {
-    const t = translationMap.get(locale);
-    if (!t) {
+    const translations: AdminPageTranslation[] = locales.map((locale) => {
+      const t = translationMap.get(locale);
+      if (!t) {
+        return {
+          id: null,
+          locale,
+          title: "",
+          slug: null,
+          body: null,
+          sections: null,
+          seoTitle: null,
+          metaDescription: null,
+          ogTitle: null,
+          ogDescription: null,
+          status: "draft",
+          publishedAt: null,
+          updatedAt: null,
+        };
+      }
       return {
-        id: null,
-        locale,
-        title: "",
-        slug: null,
-        body: null,
-        sections: null,
-        seoTitle: null,
-        metaDescription: null,
-        ogTitle: null,
-        ogDescription: null,
-        status: "draft",
-        publishedAt: null,
-        updatedAt: null,
+        id: t.id,
+        locale: t.locale as Locale,
+        title: t.title,
+        slug: t.slug ?? null,
+        body: t.body ?? null,
+        sections: (t.sections as PageSection[] | null) ?? null,
+        seoTitle: t.seoTitle ?? null,
+        metaDescription: t.metaDescription ?? null,
+        ogTitle: t.ogTitle ?? null,
+        ogDescription: t.ogDescription ?? null,
+        status: t.status as "draft" | "published",
+        publishedAt: t.publishedAt ?? null,
+        updatedAt: t.updatedAt ?? null,
       };
-    }
-    return {
-      id: t.id,
-      locale: t.locale as Locale,
-      title: t.title,
-      slug: t.slug ?? null,
-      body: t.body ?? null,
-      sections: (t.sections as PageSection[] | null) ?? null,
-      seoTitle: t.seoTitle ?? null,
-      metaDescription: t.metaDescription ?? null,
-      ogTitle: t.ogTitle ?? null,
-      ogDescription: t.ogDescription ?? null,
-      status: t.status as "draft" | "published",
-      publishedAt: t.publishedAt ?? null,
-      updatedAt: t.updatedAt ?? null,
-    };
-  });
+    });
 
-  return {
-    id: page.id,
-    key: page.key as PageKey,
-    createdAt: page.createdAt,
-    updatedAt: page.updatedAt,
-  translations,
-  };
+    return {
+      id: page.id,
+      key: page.key as PageKey,
+      createdAt: page.createdAt,
+      updatedAt: page.updatedAt,
+      translations,
+    };
+  } catch {
+    return null;
+  }
 }

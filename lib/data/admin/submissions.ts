@@ -20,25 +20,33 @@ export interface AdminSubmissionItem {
 }
 
 export async function getAdminSubmissions(limit = 200): Promise<AdminSubmissionItem[]> {
-  const rows = await db
-    .select()
-    .from(schema.submissions)
-    .orderBy(desc(schema.submissions.createdAt))
-    .limit(limit);
+  try {
+    const rows = await db
+      .select()
+      .from(schema.submissions)
+      .orderBy(desc(schema.submissions.createdAt))
+      .limit(limit);
 
-  return rows.map(mapRow);
+    return rows.map(mapRow);
+  } catch {
+    return [];
+  }
 }
 
 export async function getAdminSubmissionById(
   id: number
 ): Promise<AdminSubmissionItem | null> {
-  const [row] = await db
-    .select()
-    .from(schema.submissions)
-    .where(eq(schema.submissions.id, id))
-    .limit(1);
+  try {
+    const [row] = await db
+      .select()
+      .from(schema.submissions)
+      .where(eq(schema.submissions.id, id))
+      .limit(1);
 
-  return row ? mapRow(row) : null;
+    return row ? mapRow(row) : null;
+  } catch {
+    return null;
+  }
 }
 
 function mapRow(row: typeof schema.submissions.$inferSelect): AdminSubmissionItem {

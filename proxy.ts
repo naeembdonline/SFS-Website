@@ -69,10 +69,56 @@ function applySecurityHeaders(response: NextResponse): void {
 
 const PENDING_2FA_COOKIE = "__Host-admin-2fa-pending";
 
+// ─── CSRF: Origin/Referer check for state-changing requests ───────────────────
+//
+// Server Actions get CSRF protection from Next.js automatically. API routes do
+// not — we enforce same-origin here for any non-GET/HEAD request to /api/*.
+// Cron endpoints are exempt because they use bearer-token auth.
+
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
+function checkCsrf(request: NextRequest): NextResponse | null {
+  if (SAFE_METHODS.has(request.method)) return null;
+  if (!request.nextUrl.pathname.startsWith("/api/")) return null;
+  if (request.nextUrl.pathname.startsWith("/api/cron/")) return null;
+
+  const origin = request.headers.get("origin");
+  const referer = request.headers.get("referer");
+  const host = request.headers.get("host");
+
+  if (!host) {
+    return NextResponse.json({ error: "Missing host header" }, { status: 400 });
+  }
+
+  const allowedOrigins = [
+    `https://${host}`,
+    `http://${host}`,
+    process.env.NEXT_PUBLIC_SITE_URL,
+  ].filter(Boolean) as string[];
+
+  const source = origin || referer;
+  if (!source) {
+    return NextResponse.json({ error: "Missing origin" }, { status: 403 });
+  }
+
+  const isAllowed = allowedOrigins.some((allowed) => source.startsWith(allowed));
+  if (!isAllowed) {
+    return NextResponse.json({ error: "Cross-origin denied" }, { status: 403 });
+  }
+
+  return null;
+}
+
 // ─── Proxy ────────────────────────────────────────────────────────────────────
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  const csrfFail = checkCsrf(request);
+  if (csrfFail) {
+    applySecurityHeaders(csrfFail);
+    return csrfFail;
+  }
 
   // If a pending-2FA cookie exists and the request is for an admin shell route
   // (not the challenge page itself, not login, not the 2FA setup page), redirect

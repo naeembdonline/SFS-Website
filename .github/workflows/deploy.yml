@@ -1,0 +1,63 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Add VPS to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.SSH_PORT || 22 }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to VPS
+        run: |
+          ssh -p ${{ secrets.SSH_PORT || 22 }} deploy@${{ secrets.VPS_HOST }} <<'EOF'
+            set -e
+            cd /home/deploy/sfs-app
+            git fetch --all
+            git reset --hard origin/main
+            npm ci
+            npm run build
+            npm run db:push
+            pm2 reload sfs-app
+            pm2 save
+          EOF
+
+      - name: Verify deployment
+        run: |
+          for i in 1 2 3 4 5; do
+            if curl -sf https://${{ secrets.PRODUCTION_DOMAIN }}/api/health | grep -q '"status":"ok"'; then
+              echo "✅ Deployment successful"
+              exit 0
+            fi
+            echo "Attempt $i: waiting for app to come up..."
+            sleep 5
+          done
+          echo "❌ Health check failed"
+          exit 1
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          if [ -n "${{ secrets.WEBHOOK_URL }}" ]; then
+            curl -X POST -H "Content-Type: application/json" \
+              -d '{"content":"🔴 Production deploy FAILED for commit ${{ github.sha }}"}' \
+              "${{ secrets.WEBHOOK_URL }}"
+          fi

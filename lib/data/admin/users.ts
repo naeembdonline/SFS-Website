@@ -18,40 +18,48 @@ export interface AdminUserListItem {
 // ─── Queries ──────────────────────────────────────────────────────────────────
 
 export async function getAdminUserList(): Promise<AdminUserListItem[]> {
-  const rows = await db
-    .select({
-      id: schema.users.id,
-      email: schema.users.email,
-      displayName: schema.users.displayName,
-      role: schema.users.role,
-      isActive: schema.users.isActive,
-      totpEnabled: schema.users.totpEnabled,
-      lastLoginAt: schema.users.lastLoginAt,
-      createdAt: schema.users.createdAt,
-    })
-    .from(schema.users)
-    .orderBy(desc(schema.users.createdAt));
+  try {
+    const rows = await db
+      .select({
+        id: schema.users.id,
+        email: schema.users.email,
+        displayName: schema.users.displayName,
+        role: schema.users.role,
+        isActive: schema.users.isActive,
+        totpEnabled: schema.users.totpEnabled,
+        lastLoginAt: schema.users.lastLoginAt,
+        createdAt: schema.users.createdAt,
+      })
+      .from(schema.users)
+      .orderBy(desc(schema.users.createdAt));
 
-  return rows as AdminUserListItem[];
+    return rows as AdminUserListItem[];
+  } catch {
+    return [];
+  }
 }
 
 export async function getAdminUserById(
   id: number
 ): Promise<AdminUserListItem | null> {
-  const [row] = await db
-    .select({
-      id: schema.users.id,
-      email: schema.users.email,
-      displayName: schema.users.displayName,
-      role: schema.users.role,
-      isActive: schema.users.isActive,
-      totpEnabled: schema.users.totpEnabled,
-      lastLoginAt: schema.users.lastLoginAt,
-      createdAt: schema.users.createdAt,
-    })
-    .from(schema.users)
-    .where(eq(schema.users.id, id))
-    .limit(1);
+  try {
+    const [row] = await db
+      .select({
+        id: schema.users.id,
+        email: schema.users.email,
+        displayName: schema.users.displayName,
+        role: schema.users.role,
+        isActive: schema.users.isActive,
+        totpEnabled: schema.users.totpEnabled,
+        lastLoginAt: schema.users.lastLoginAt,
+        createdAt: schema.users.createdAt,
+      })
+      .from(schema.users)
+      .where(eq(schema.users.id, id))
+      .limit(1);
 
-  return (row as AdminUserListItem) ?? null;
+    return (row as AdminUserListItem) ?? null;
+  } catch {
+    return null;
+  }
 }

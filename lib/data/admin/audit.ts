@@ -32,46 +32,50 @@ export async function getAdminAuditLogs(
   limit = 50,
   offset = 0
 ): Promise<AdminAuditLogItem[]> {
-  const user = await requireAdminRole();
-  void user;
+  try {
+    const user = await requireAdminRole();
+    void user;
 
-  const rows = await db
-    .select({
-      id: schema.auditLog.id,
-      at: schema.auditLog.at,
-      actorUserId: schema.auditLog.actorUserId,
-      actorEmail: schema.users.email,
-      actorDisplayName: schema.users.displayName,
-      actorRole: schema.auditLog.actorRole,
-      action: schema.auditLog.action,
-      entityType: schema.auditLog.entityType,
-      entityId: schema.auditLog.entityId,
-      localeAffected: schema.auditLog.localeAffected,
-      diff: schema.auditLog.diff,
-      ip: schema.auditLog.ip,
-      createdAt: schema.auditLog.createdAt,
-    })
-    .from(schema.auditLog)
-    .leftJoin(schema.users, eq(schema.users.id, schema.auditLog.actorUserId))
-    .orderBy(desc(schema.auditLog.at))
-    .limit(clampLimit(limit))
-    .offset(Math.max(0, offset));
+    const rows = await db
+      .select({
+        id: schema.auditLog.id,
+        at: schema.auditLog.at,
+        actorUserId: schema.auditLog.actorUserId,
+        actorEmail: schema.users.email,
+        actorDisplayName: schema.users.displayName,
+        actorRole: schema.auditLog.actorRole,
+        action: schema.auditLog.action,
+        entityType: schema.auditLog.entityType,
+        entityId: schema.auditLog.entityId,
+        localeAffected: schema.auditLog.localeAffected,
+        diff: schema.auditLog.diff,
+        ip: schema.auditLog.ip,
+        createdAt: schema.auditLog.createdAt,
+      })
+      .from(schema.auditLog)
+      .leftJoin(schema.users, eq(schema.users.id, schema.auditLog.actorUserId))
+      .orderBy(desc(schema.auditLog.at))
+      .limit(clampLimit(limit))
+      .offset(Math.max(0, offset));
 
-  return rows.map((row) => ({
-    id: row.id,
-    at: row.at,
-    actorUserId: row.actorUserId ?? null,
-    actorEmail: row.actorEmail ?? null,
-    actorDisplayName: row.actorDisplayName ?? null,
-    actorRole: row.actorRole ?? null,
-    action: row.action,
-    entityType: row.entityType ?? null,
-    entityId: row.entityId ?? null,
-    localeAffected: (row.localeAffected as "bn" | "en" | "ar" | null) ?? null,
-    diff: sanitizeJson(row.diff),
-    ip: row.ip ?? null,
-    createdAt: row.createdAt,
-  }));
+    return rows.map((row) => ({
+      id: row.id,
+      at: row.at,
+      actorUserId: row.actorUserId ?? null,
+      actorEmail: row.actorEmail ?? null,
+      actorDisplayName: row.actorDisplayName ?? null,
+      actorRole: row.actorRole ?? null,
+      action: row.action,
+      entityType: row.entityType ?? null,
+      entityId: row.entityId ?? null,
+      localeAffected: (row.localeAffected as "bn" | "en" | "ar" | null) ?? null,
+      diff: sanitizeJson(row.diff),
+      ip: row.ip ?? null,
+      createdAt: row.createdAt,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 async function requireAdminRole(): Promise<SessionUser> {

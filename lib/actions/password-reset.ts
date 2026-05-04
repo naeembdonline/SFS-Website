@@ -23,7 +23,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { eq, and, gt, isNull, sql } from "drizzle-orm";
-import { Resend } from "resend";
+import { sendEmail } from "@/lib/email";
 import { hashPassword } from "@/lib/auth/password";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
@@ -151,36 +151,28 @@ export async function requestPasswordResetAction(
     expiresAt,
   });
 
-  // Send email via Resend
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const resetUrl = `${siteUrl}/admin/password-reset?token=${rawToken}`;
 
-  try {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    await resend.emails.send({
-      from: process.env.EMAIL_FROM ?? "noreply@example.com",
-      to: user.email,
-      subject: "Reset your admin password",
-      html: `
-        <p>You requested a password reset for your admin account.</p>
-        <p>
-          <a href="${resetUrl}" style="color:#0B3D2E;font-weight:bold;">
-            Reset your password
-          </a>
-        </p>
-        <p>This link expires in ${TOKEN_EXPIRY_MINUTES} minutes.</p>
-        <p>If you did not request this, you can safely ignore this email.</p>
-        <hr />
-        <p style="font-size:12px;color:#666;">
-          For security, do not share this link. It can only be used once.
-        </p>
-      `,
-      text: `Reset your admin password:\n\n${resetUrl}\n\nThis link expires in ${TOKEN_EXPIRY_MINUTES} minutes. If you did not request this, ignore this email.`,
-    });
-  } catch (err) {
-    // Log but don't expose email send failure — return generic success
-    console.error("[password-reset] email send failed:", err);
-  }
+  await sendEmail({
+    to: user.email,
+    subject: "Reset your admin password",
+    html: `
+      <p>You requested a password reset for your admin account.</p>
+      <p>
+        <a href="${resetUrl}" style="color:#0B3D2E;font-weight:bold;">
+          Reset your password
+        </a>
+      </p>
+      <p>This link expires in ${TOKEN_EXPIRY_MINUTES} minutes.</p>
+      <p>If you did not request this, you can safely ignore this email.</p>
+      <hr />
+      <p style="font-size:12px;color:#666;">
+        For security, do not share this link. It can only be used once.
+      </p>
+    `,
+    text: `Reset your admin password:\n\n${resetUrl}\n\nThis link expires in ${TOKEN_EXPIRY_MINUTES} minutes. If you did not request this, ignore this email.`,
+  });
 
   // Audit
   await db.transaction(async (tx) => {

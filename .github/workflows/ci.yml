@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        env:
+          DATABASE_URL: postgres://dummy:dummy@localhost:5432/dummy
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET || 'ci-test-secret-32-chars-minimum-len' }}
+          TOTP_ENCRYPTION_KEY: ci-test-totp-key-32-chars-minimum-len
+          R2_ACCESS_KEY_ID: dummy
+          R2_SECRET_ACCESS_KEY: dummy
+          R2_ACCOUNT_ID: dummy
+          R2_BUCKET_PUBLIC: public
+          R2_BUCKET_PRIVATE: private
+          R2_PUBLIC_URL: https://cdn.example.com
+          EMAIL_FROM: noreply@example.com
+          EMAIL_STAFF_INBOX: staff@example.com
+          CRON_SECRET: ci-test-cron-secret-32-chars-min-len
+        run: npm run build

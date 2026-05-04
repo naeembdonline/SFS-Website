@@ -22,49 +22,57 @@ export interface AdminMediaDetail extends AdminMediaItem {
 }
 
 export async function getAdminMediaList(limit = 100): Promise<AdminMediaItem[]> {
-  const rows = await db
-    .select()
-    .from(schema.media)
-    .orderBy(desc(schema.media.createdAt))
-    .limit(limit);
-  return rows.map((r) => ({
-    id: r.id,
-    storageKey: r.storageKey,
-    bucket: r.bucket,
-    originalFilename: r.originalFilename ?? null,
-    mime: r.mime,
-    bytes: r.bytes,
-    width: r.width ?? null,
-    height: r.height ?? null,
-    createdAt: r.createdAt,
-  }));
+  try {
+    const rows = await db
+      .select()
+      .from(schema.media)
+      .orderBy(desc(schema.media.createdAt))
+      .limit(limit);
+    return rows.map((r) => ({
+      id: r.id,
+      storageKey: r.storageKey,
+      bucket: r.bucket,
+      originalFilename: r.originalFilename ?? null,
+      mime: r.mime,
+      bytes: r.bytes,
+      width: r.width ?? null,
+      height: r.height ?? null,
+      createdAt: r.createdAt,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export async function getAdminMediaById(id: number): Promise<AdminMediaDetail | null> {
-  const [media] = await db.select().from(schema.media).where(eq(schema.media.id, id)).limit(1);
-  if (!media) return null;
-  const tr = await db
-    .select()
-    .from(schema.mediaTranslations)
-    .where(eq(schema.mediaTranslations.mediaId, id));
-  const translations: AdminMediaDetail["translations"] = {
-    bn: { altText: null, caption: null },
-    en: { altText: null, caption: null },
-    ar: { altText: null, caption: null },
-  };
-  for (const row of tr) translations[row.locale as Locale] = { altText: row.altText ?? null, caption: row.caption ?? null };
-  return {
-    id: media.id,
-    storageKey: media.storageKey,
-    bucket: media.bucket,
-    originalFilename: media.originalFilename ?? null,
-    mime: media.mime,
-    bytes: media.bytes,
-    width: media.width ?? null,
-    height: media.height ?? null,
-    createdAt: media.createdAt,
-    translations,
-  };
+  try {
+    const [media] = await db.select().from(schema.media).where(eq(schema.media.id, id)).limit(1);
+    if (!media) return null;
+    const tr = await db
+      .select()
+      .from(schema.mediaTranslations)
+      .where(eq(schema.mediaTranslations.mediaId, id));
+    const translations: AdminMediaDetail["translations"] = {
+      bn: { altText: null, caption: null },
+      en: { altText: null, caption: null },
+      ar: { altText: null, caption: null },
+    };
+    for (const row of tr) translations[row.locale as Locale] = { altText: row.altText ?? null, caption: row.caption ?? null };
+    return {
+      id: media.id,
+      storageKey: media.storageKey,
+      bucket: media.bucket,
+      originalFilename: media.originalFilename ?? null,
+      mime: media.mime,
+      bytes: media.bytes,
+      width: media.width ?? null,
+      height: media.height ?? null,
+      createdAt: media.createdAt,
+      translations,
+    };
+  } catch {
+    return null;
+  }
 }
 
 // ── commitMedia ──────────────────────────────────────────────────────────────

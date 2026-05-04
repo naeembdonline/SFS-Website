@@ -51,130 +51,138 @@ export async function getAdminCampaignList(
   limit = 50,
   offset = 0
 ): Promise<AdminCampaignListItem[]> {
-  const whereClause = lifecycle
-    ? and(
-      isNull(schema.campaigns.deletedAt),
-      eq(schema.campaigns.statusLifecycle, lifecycle)
-    )
-    : isNull(schema.campaigns.deletedAt);
+  try {
+    const whereClause = lifecycle
+      ? and(
+        isNull(schema.campaigns.deletedAt),
+        eq(schema.campaigns.statusLifecycle, lifecycle)
+      )
+      : isNull(schema.campaigns.deletedAt);
 
-  const rows = await db
-    .select({
-      id: schema.campaigns.id,
-      statusLifecycle: schema.campaigns.statusLifecycle,
-      startDate: schema.campaigns.startDate,
-      endDate: schema.campaigns.endDate,
-      createdAt: schema.campaigns.createdAt,
-      locale: schema.campaignTranslations.locale,
-      title: schema.campaignTranslations.title,
-      status: schema.campaignTranslations.status,
-    })
-    .from(schema.campaigns)
-    .leftJoin(
-      schema.campaignTranslations,
-      eq(schema.campaignTranslations.campaignId, schema.campaigns.id)
-    )
-    .where(whereClause)
-    .orderBy(desc(schema.campaigns.createdAt))
-    .limit(limit * 4)
-    .offset(0);
+    const rows = await db
+      .select({
+        id: schema.campaigns.id,
+        statusLifecycle: schema.campaigns.statusLifecycle,
+        startDate: schema.campaigns.startDate,
+        endDate: schema.campaigns.endDate,
+        createdAt: schema.campaigns.createdAt,
+        locale: schema.campaignTranslations.locale,
+        title: schema.campaignTranslations.title,
+        status: schema.campaignTranslations.status,
+      })
+      .from(schema.campaigns)
+      .leftJoin(
+        schema.campaignTranslations,
+        eq(schema.campaignTranslations.campaignId, schema.campaigns.id)
+      )
+      .where(whereClause)
+      .orderBy(desc(schema.campaigns.createdAt))
+      .limit(limit * 4)
+      .offset(0);
 
-  const map = new Map<number, AdminCampaignListItem>();
-  for (const row of rows) {
-    if (!map.has(row.id)) {
-      map.set(row.id, {
-        id: row.id,
-        statusLifecycle: row.statusLifecycle as CampaignLifecycle,
-        startDate: row.startDate ?? null,
-        endDate: row.endDate ?? null,
-        createdAt: row.createdAt,
-        bn: { status: "missing", title: null },
-        en: { status: "missing", title: null },
-        ar: { status: "missing", title: null },
-      });
-    }
+    const map = new Map<number, AdminCampaignListItem>();
+    for (const row of rows) {
+      if (!map.has(row.id)) {
+        map.set(row.id, {
+          id: row.id,
+          statusLifecycle: row.statusLifecycle as CampaignLifecycle,
+          startDate: row.startDate ?? null,
+          endDate: row.endDate ?? null,
+          createdAt: row.createdAt,
+          bn: { status: "missing", title: null },
+          en: { status: "missing", title: null },
+          ar: { status: "missing", title: null },
+        });
+      }
 
-    if (row.locale && row.status) {
-      const item = map.get(row.id)!;
-      const loc = row.locale as Locale;
-      if (loc === "bn" || loc === "en" || loc === "ar") {
-        item[loc] = {
-          status: row.status as "draft" | "published",
-          title: row.title,
-        };
+      if (row.locale && row.status) {
+        const item = map.get(row.id)!;
+        const loc = row.locale as Locale;
+        if (loc === "bn" || loc === "en" || loc === "ar") {
+          item[loc] = {
+            status: row.status as "draft" | "published",
+            title: row.title,
+          };
+        }
       }
     }
-  }
 
-  return Array.from(map.values()).slice(offset, offset + limit);
+    return Array.from(map.values()).slice(offset, offset + limit);
+  } catch {
+    return [];
+  }
 }
 
 export async function getAdminCampaignById(
   campaignId: number
 ): Promise<AdminCampaignDetail | null> {
-  const [campaign] = await db
-    .select()
-    .from(schema.campaigns)
-    .where(eq(schema.campaigns.id, campaignId))
-    .limit(1);
+  try {
+    const [campaign] = await db
+      .select()
+      .from(schema.campaigns)
+      .where(eq(schema.campaigns.id, campaignId))
+      .limit(1);
 
-  if (!campaign) return null;
+    if (!campaign) return null;
 
-  const translationRows = await db
-    .select()
-    .from(schema.campaignTranslations)
-    .where(eq(schema.campaignTranslations.campaignId, campaignId));
+    const translationRows = await db
+      .select()
+      .from(schema.campaignTranslations)
+      .where(eq(schema.campaignTranslations.campaignId, campaignId));
 
-  const translationMap = new Map(translationRows.map((t) => [t.locale, t]));
-  const translations: AdminCampaignTranslation[] = locales.map((locale) => {
-    const t = translationMap.get(locale);
-    if (!t) {
+    const translationMap = new Map(translationRows.map((t) => [t.locale, t]));
+    const translations: AdminCampaignTranslation[] = locales.map((locale) => {
+      const t = translationMap.get(locale);
+      if (!t) {
+        return {
+          id: null,
+          locale,
+          title: "",
+          slug: "",
+          excerpt: null,
+          body: "",
+          goals: null,
+          seoTitle: null,
+          metaDescription: null,
+          ogTitle: null,
+          ogDescription: null,
+          status: "draft",
+          publishedAt: null,
+          updatedAt: null,
+        };
+      }
       return {
-        id: null,
-        locale,
-        title: "",
-        slug: "",
-        excerpt: null,
-        body: "",
-        goals: null,
-        seoTitle: null,
-        metaDescription: null,
-        ogTitle: null,
-        ogDescription: null,
-        status: "draft",
-        publishedAt: null,
-        updatedAt: null,
+        id: t.id,
+        locale: t.locale as Locale,
+        title: t.title,
+        slug: t.slug,
+        excerpt: t.excerpt ?? null,
+        body: t.body,
+        goals: t.goals ?? null,
+        seoTitle: t.seoTitle ?? null,
+        metaDescription: t.metaDescription ?? null,
+        ogTitle: t.ogTitle ?? null,
+        ogDescription: t.ogDescription ?? null,
+        status: t.status as "draft" | "published",
+        publishedAt: t.publishedAt ?? null,
+        updatedAt: t.updatedAt ?? null,
       };
-    }
-    return {
-      id: t.id,
-      locale: t.locale as Locale,
-      title: t.title,
-      slug: t.slug,
-      excerpt: t.excerpt ?? null,
-      body: t.body,
-      goals: t.goals ?? null,
-      seoTitle: t.seoTitle ?? null,
-      metaDescription: t.metaDescription ?? null,
-      ogTitle: t.ogTitle ?? null,
-      ogDescription: t.ogDescription ?? null,
-      status: t.status as "draft" | "published",
-      publishedAt: t.publishedAt ?? null,
-      updatedAt: t.updatedAt ?? null,
-    };
-  });
+    });
 
-  return {
-    id: campaign.id,
-    statusLifecycle: campaign.statusLifecycle as CampaignLifecycle,
-    startDate: campaign.startDate ?? null,
-    endDate: campaign.endDate ?? null,
-    coverMediaId: campaign.coverMediaId ?? null,
-    deletedAt: campaign.deletedAt ?? null,
-    createdAt: campaign.createdAt,
-    updatedAt: campaign.updatedAt,
-    translations,
-  };
+    return {
+      id: campaign.id,
+      statusLifecycle: campaign.statusLifecycle as CampaignLifecycle,
+      startDate: campaign.startDate ?? null,
+      endDate: campaign.endDate ?? null,
+      coverMediaId: campaign.coverMediaId ?? null,
+      deletedAt: campaign.deletedAt ?? null,
+      createdAt: campaign.createdAt,
+      updatedAt: campaign.updatedAt,
+      translations,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function isCampaignSlugAvailable(
@@ -182,19 +190,23 @@ export async function isCampaignSlugAvailable(
   slug: string,
   currentCampaignId: number | null
 ): Promise<boolean> {
-  const [existing] = await db
-    .select({ entityId: schema.slugReservations.entityId })
-    .from(schema.slugReservations)
-    .where(
-      and(
-        eq(schema.slugReservations.entityType, "campaign"),
-        eq(schema.slugReservations.locale, locale),
-        eq(schema.slugReservations.slug, slug)
+  try {
+    const [existing] = await db
+      .select({ entityId: schema.slugReservations.entityId })
+      .from(schema.slugReservations)
+      .where(
+        and(
+          eq(schema.slugReservations.entityType, "campaign"),
+          eq(schema.slugReservations.locale, locale),
+          eq(schema.slugReservations.slug, slug)
+        )
       )
-    )
-    .limit(1);
+      .limit(1);
 
-  if (!existing) return true;
-  if (currentCampaignId !== null && existing.entityId === currentCampaignId) return true;
-  return false;
+    if (!existing) return true;
+    if (currentCampaignId !== null && existing.entityId === currentCampaignId) return true;
+    return false;
+  } catch {
+    return false;
+  }
 }

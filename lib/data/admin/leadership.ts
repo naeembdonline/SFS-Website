@@ -33,78 +33,86 @@ export interface AdminLeadershipListItem {
 }
 
 export async function getAdminLeadershipList(): Promise<AdminLeadershipListItem[]> {
-  const rows = await db
-    .select({
-      id: schema.leadership.id,
-      displayOrder: schema.leadership.displayOrder,
-      isVisible: schema.leadership.isVisible,
-      locale: schema.leadershipTranslations.locale,
-      name: schema.leadershipTranslations.name,
-    })
-    .from(schema.leadership)
-    .leftJoin(
-      schema.leadershipTranslations,
-      eq(schema.leadershipTranslations.leadershipId, schema.leadership.id)
-    )
-    .where(isNull(schema.leadership.deletedAt))
-    .orderBy(desc(schema.leadership.displayOrder));
+  try {
+    const rows = await db
+      .select({
+        id: schema.leadership.id,
+        displayOrder: schema.leadership.displayOrder,
+        isVisible: schema.leadership.isVisible,
+        locale: schema.leadershipTranslations.locale,
+        name: schema.leadershipTranslations.name,
+      })
+      .from(schema.leadership)
+      .leftJoin(
+        schema.leadershipTranslations,
+        eq(schema.leadershipTranslations.leadershipId, schema.leadership.id)
+      )
+      .where(isNull(schema.leadership.deletedAt))
+      .orderBy(desc(schema.leadership.displayOrder));
 
-  const map = new Map<number, AdminLeadershipListItem>();
-  for (const row of rows) {
-    if (!map.has(row.id)) {
-      map.set(row.id, {
-        id: row.id,
-        displayOrder: Number(row.displayOrder),
-        isVisible: row.isVisible,
-        bn: { name: null },
-        en: { name: null },
-        ar: { name: null },
-      });
+    const map = new Map<number, AdminLeadershipListItem>();
+    for (const row of rows) {
+      if (!map.has(row.id)) {
+        map.set(row.id, {
+          id: row.id,
+          displayOrder: Number(row.displayOrder),
+          isVisible: row.isVisible,
+          bn: { name: null },
+          en: { name: null },
+          ar: { name: null },
+        });
+      }
+      if (row.locale) {
+        const item = map.get(row.id)!;
+        const locale = row.locale as Locale;
+        item[locale] = { name: row.name };
+      }
     }
-    if (row.locale) {
-      const item = map.get(row.id)!;
-      const locale = row.locale as Locale;
-      item[locale] = { name: row.name };
-    }
+    return Array.from(map.values());
+  } catch {
+    return [];
   }
-  return Array.from(map.values());
 }
 
 export async function getAdminLeadershipById(id: number): Promise<AdminLeadershipItem | null> {
-  const [member] = await db
-    .select()
-    .from(schema.leadership)
-    .where(eq(schema.leadership.id, id))
-    .limit(1);
-  if (!member) return null;
+  try {
+    const [member] = await db
+      .select()
+      .from(schema.leadership)
+      .where(eq(schema.leadership.id, id))
+      .limit(1);
+    if (!member) return null;
 
-  const translationRows = await db
-    .select()
-    .from(schema.leadershipTranslations)
-    .where(eq(schema.leadershipTranslations.leadershipId, id));
-  const byLocale = new Map(translationRows.map((t) => [t.locale, t]));
+    const translationRows = await db
+      .select()
+      .from(schema.leadershipTranslations)
+      .where(eq(schema.leadershipTranslations.leadershipId, id));
+    const byLocale = new Map(translationRows.map((t) => [t.locale, t]));
 
-  const translations = locales.map((locale) => {
-    const t = byLocale.get(locale);
-    return t
-      ? {
-        id: t.id,
-        locale,
-        name: t.name,
-        roleTitle: t.roleTitle ?? null,
-        bio: t.bio ?? null,
-      }
-      : { id: null, locale, name: "", roleTitle: null, bio: null };
-  });
+    const translations = locales.map((locale) => {
+      const t = byLocale.get(locale);
+      return t
+        ? {
+          id: t.id,
+          locale,
+          name: t.name,
+          roleTitle: t.roleTitle ?? null,
+          bio: t.bio ?? null,
+        }
+        : { id: null, locale, name: "", roleTitle: null, bio: null };
+    });
 
-  return {
-    id: member.id,
-    photoMediaId: member.photoMediaId ?? null,
-    displayOrder: Number(member.displayOrder),
-    isVisible: member.isVisible,
-    deletedAt: member.deletedAt ?? null,
-    createdAt: member.createdAt,
-    updatedAt: member.updatedAt,
-    translations,
-  };
+    return {
+      id: member.id,
+      photoMediaId: member.photoMediaId ?? null,
+      displayOrder: Number(member.displayOrder),
+      isVisible: member.isVisible,
+      deletedAt: member.deletedAt ?? null,
+      createdAt: member.createdAt,
+      updatedAt: member.updatedAt,
+      translations,
+    };
+  } catch {
+    return null;
+  }
 }
