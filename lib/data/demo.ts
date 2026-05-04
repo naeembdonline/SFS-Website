@@ -686,7 +686,7 @@ export const DEMO_PAGES: Record<string, Record<Locale, PageContent | null>> = {
 <li>২০+ জাতীয় ও আন্তর্জাতিক পুরস্কার</li>
 </ul>`,
       sections: null,
-      seoTitle: "আমাদের সম্পর্কে — সার্বভৌমত্ব",
+      seoTitle: "আমাদের সম্পর্কে",
       metaDescription: "সার্বভৌমত্ব আন্দোলনের মিশন, মূল্যবোধ ও ইতিহাস সম্পর্কে জানুন।",
       ogTitle: null,
       ogDescription: null,
@@ -721,7 +721,7 @@ export const DEMO_PAGES: Record<string, Record<Locale, PageContent | null>> = {
 <li>20+ national and international awards and recognitions</li>
 </ul>`,
       sections: null,
-      seoTitle: "About Us — Sovereignty",
+      seoTitle: "About Us",
       metaDescription: "Learn about the mission, values, and history of the Sovereignty Movement.",
       ogTitle: null,
       ogDescription: null,
