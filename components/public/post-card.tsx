@@ -25,7 +25,7 @@ export function PostCard({ post, type, locale }: PostCardProps) {
 
   return (
     <article
-      className="group relative flex flex-col gap-4 rounded-2xl border bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+      className="group relative flex flex-col gap-3 rounded-xl border bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
       style={{ borderColor: "#e5e7eb" }}
     >
       {/* Meta row */}
@@ -55,7 +55,7 @@ export function PostCard({ post, type, locale }: PostCardProps) {
 
       {/* Title */}
       <h3
-        className="text-lg font-bold leading-snug transition-colors group-hover:underline"
+        className="text-base font-bold leading-snug transition-colors group-hover:underline"
         style={{ color: "var(--color-brand-black)" }}
       >
         <Link href={href} className="after:absolute after:inset-0">

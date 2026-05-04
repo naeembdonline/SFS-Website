@@ -22,7 +22,7 @@ export function SectionHeader({
   return (
     <div className={cn(className)}>
       <Tag
-        className="text-3xl font-bold tracking-tight md:text-4xl"
+        className="text-xl font-bold tracking-tight md:text-2xl"
         style={{ color: "var(--color-brand-black)" }}
       >
         {title}

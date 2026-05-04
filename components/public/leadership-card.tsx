@@ -27,13 +27,13 @@ export function LeadershipCard({ member }: LeadershipCardProps) {
 
   return (
     <article
-      className="group flex flex-col rounded-2xl border bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+      className="group flex flex-col rounded-xl border bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
       style={{ borderColor: "#e5e7eb" }}
     >
       {/* Avatar */}
-      <div className="mb-5 flex items-center gap-4">
+      <div className="mb-3 flex items-center gap-3">
         <div
-          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-2xl font-bold text-white shadow-md"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white shadow-sm"
           style={{ background: avatarGradient(member.name) }}
           aria-hidden="true"
         >
@@ -59,7 +59,7 @@ export function LeadershipCard({ member }: LeadershipCardProps) {
 
       {/* Bio */}
       {member.bio && (
-        <p className="line-clamp-4 text-sm leading-relaxed text-neutral-500">
+        <p className="line-clamp-3 text-xs leading-relaxed text-neutral-500">
           {member.bio}
         </p>
       )}

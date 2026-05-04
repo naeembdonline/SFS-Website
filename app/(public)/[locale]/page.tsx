@@ -178,7 +178,7 @@ async function HomeContent({ params }: HomePageProps) {
 
       {/* ── 1. Hero ──────────────────────────────────────────────────── */}
       <section
-        className="relative flex min-h-[90vh] items-center overflow-hidden py-24 sm:py-32"
+        className="relative flex min-h-[70vh] items-center overflow-hidden py-16 sm:py-20"
         style={{ backgroundColor: "var(--color-brand-black)" }}
       >
         {/* Radial glow */}
@@ -216,25 +216,25 @@ async function HomeContent({ params }: HomePageProps) {
                 }}
               />
               <span className="text-xs font-bold uppercase tracking-[0.18em] text-white/75">
-                {settings?.tagline ?? hero.badge}
+                {hero.badge}
               </span>
             </div>
 
             {/* Heading */}
-            <h1 className="text-6xl font-extrabold leading-[1.1] text-white sm:text-7xl lg:text-[5.5rem]">
+            <h1 className="text-3xl font-bold leading-snug text-white sm:text-4xl lg:text-5xl">
               {settings?.siteName ?? "Sovereignty"}
             </h1>
 
             {/* Sub-copy */}
-            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-white/60 sm:text-xl">
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-white/60 sm:text-base">
               {hero.tagline}
             </p>
 
             {/* CTAs */}
-            <div className="mt-12 flex flex-wrap gap-4">
+            <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href={`/${locale}/campaigns`}
-                className="group relative inline-flex items-center justify-center overflow-hidden rounded-xl px-8 py-4 text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="group relative inline-flex items-center justify-center overflow-hidden rounded-lg px-6 py-2.5 text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
                 style={{
                   backgroundColor: "var(--color-accent-gold)",
                   color: "var(--color-brand-black)",
@@ -248,7 +248,7 @@ async function HomeContent({ params }: HomePageProps) {
               </Link>
               <Link
                 href={`/${locale}/about`}
-                className="inline-flex items-center justify-center rounded-xl px-8 py-4 text-sm font-bold text-white transition-all"
+                className="inline-flex items-center justify-center rounded-lg px-6 py-2.5 text-sm font-bold text-white transition-all"
                 style={{
                   border: "1px solid rgba(255,255,255,0.2)",
                   background: "rgba(255,255,255,0.06)",
@@ -260,7 +260,7 @@ async function HomeContent({ params }: HomePageProps) {
             </div>
 
             {/* Stats strip */}
-            <div className="mt-16 flex flex-wrap gap-10">
+            <div className="mt-10 flex flex-wrap gap-8 border-t pt-8" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
               {[
                 {
                   value: locale === "bn" ? "৫০,০০০+" : "50,000+",
@@ -276,8 +276,8 @@ async function HomeContent({ params }: HomePageProps) {
                 },
               ].map((stat) => (
                 <div key={stat.label}>
-                  <div className="text-3xl font-extrabold text-white">{stat.value}</div>
-                  <div className="mt-1 text-sm text-white/50">{stat.label}</div>
+                  <div className="text-xl font-bold text-white">{stat.value}</div>
+                  <div className="mt-0.5 text-xs text-white/50">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -286,24 +286,24 @@ async function HomeContent({ params }: HomePageProps) {
       </section>
 
       {/* ── 2. Mission ───────────────────────────────────────────────── */}
-      <section className="bg-white py-24 sm:py-32">
+      <section className="bg-white py-14 sm:py-20">
         <Container>
-          <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
               <p
-                className="mb-4 text-sm font-bold uppercase tracking-widest"
+                className="mb-3 text-xs font-bold uppercase tracking-widest"
                 style={{ color: "var(--color-accent-gold)" }}
               >
                 {mission.label}
               </p>
               <h2
-                className="text-4xl font-bold leading-tight sm:text-5xl"
+                className="text-lg font-semibold leading-snug sm:text-xl"
                 style={{ color: "var(--color-brand-black)" }}
               >
                 {mission.heading}
               </h2>
             </div>
-            <div className="space-y-5 text-lg leading-relaxed text-neutral-600">
+            <div className="space-y-3 text-sm leading-relaxed text-neutral-600">
               <p>{mission.p1}</p>
               <p>{mission.p2}</p>
               <Link
@@ -320,9 +320,9 @@ async function HomeContent({ params }: HomePageProps) {
 
       {/* ── 3. Active Campaigns ──────────────────────────────────────── */}
       {activeCampaigns.length > 0 && (
-        <section className="py-24 sm:py-32" style={{ backgroundColor: "#f9fafb" }}>
+        <section className="py-14 sm:py-20" style={{ backgroundColor: "#f9fafb" }}>
           <Container>
-            <div className="mb-14 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <SectionHeader
                 title={dict.nav.campaigns}
                 description={labels.campaignsDesc}
@@ -347,9 +347,9 @@ async function HomeContent({ params }: HomePageProps) {
 
       {/* ── 4. News ──────────────────────────────────────────────────── */}
       {recentNews.length > 0 && (
-        <section className="bg-white py-24 sm:py-32">
+        <section className="bg-white py-14 sm:py-20">
           <Container>
-            <div className="mb-14 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <SectionHeader
                 title={dict.nav.news}
                 description={labels.newsDesc}
@@ -374,9 +374,9 @@ async function HomeContent({ params }: HomePageProps) {
 
       {/* ── 5. Leadership preview ────────────────────────────────────── */}
       {topLeaders.length > 0 && (
-        <section className="py-24 sm:py-32" style={{ backgroundColor: "#f9fafb" }}>
+        <section className="py-14 sm:py-20" style={{ backgroundColor: "#f9fafb" }}>
           <Container>
-            <div className="mb-14 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <SectionHeader
                 title={dict.nav.leadership}
                 description={labels.leadershipDesc}
@@ -401,7 +401,7 @@ async function HomeContent({ params }: HomePageProps) {
 
       {/* ── 6. CTA banner ────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden py-24 sm:py-32"
+        className="relative overflow-hidden py-14 sm:py-20"
         style={{ backgroundColor: "var(--color-brand-deep)" }}
       >
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.08]">
@@ -412,12 +412,12 @@ async function HomeContent({ params }: HomePageProps) {
           />
         </div>
         <Container className="relative text-center">
-          <h2 className="text-4xl font-bold text-white sm:text-5xl">{cta.heading}</h2>
-          <p className="mx-auto mt-5 max-w-2xl text-lg text-white/70">{cta.body}</p>
-          <div className="mt-10">
+          <h2 className="text-2xl font-bold text-white sm:text-3xl">{cta.heading}</h2>
+          <p className="mx-auto mt-4 max-w-xl text-sm text-white/70 sm:text-base">{cta.body}</p>
+          <div className="mt-8">
             <Link
               href={`/${locale}/contact`}
-              className="inline-flex rounded-xl px-10 py-4 text-sm font-bold shadow-lg shadow-black/20 transition-all hover:scale-105"
+              className="inline-flex rounded-lg px-8 py-3 text-sm font-bold shadow-lg shadow-black/20 transition-all hover:scale-105"
               style={{
                 backgroundColor: "var(--color-accent-gold)",
                 color: "var(--color-brand-black)",
