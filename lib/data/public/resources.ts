@@ -166,6 +166,21 @@ export async function getResourceBySlug(
       availableLocales: siblings.map((s) => s.locale as Locale),
     };
   } catch {
+    // DB unavailable — synthesise from demo list data
+    const { DEMO_RESOURCES } = await import("@/lib/data/demo");
+    const list = DEMO_RESOURCES[locale] ?? DEMO_RESOURCES.en ?? [];
+    const found = list.find((r) => r.slug === slug);
+    if (found) {
+      return {
+        ...found,
+        seoTitle: null,
+        metaDescription: found.description ?? null,
+        ogTitle: null,
+        ogDescription: null,
+        ogImageId: null,
+        availableLocales: [],
+      };
+    }
     return null;
   }
 }

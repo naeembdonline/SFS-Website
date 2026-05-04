@@ -295,7 +295,7 @@ export const DEMO_BLOG: Record<Locale, PostListItem[]> = {
     {
       id: 11,
       type: "blog",
-      slug: "shikkha-khate-biনিয়োগ-badhanor-proyojoniyota",
+      slug: "shikkha-khate-biniyog-badhanor-proyojoniyota",
       title: "শিক্ষাখাতে বিনিয়োগ বাড়ানোর প্রয়োজনীয়তা",
       excerpt:
         "জিডিপির মাত্র ২% শিক্ষায় ব্যয় করে একটি উন্নত রাষ্ট্র গড়া সম্ভব নয়। এই প্রবন্ধে শিক্ষাখাতে বাজেট বৃদ্ধির যুক্তিসংগত প্রস্তাবনা তুলে ধরা হয়েছে।",

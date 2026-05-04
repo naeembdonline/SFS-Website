@@ -32,7 +32,10 @@ export default function RootLayout({
       lang="bn"
       className={`${fontEn.variable} ${fontBn.variable} ${fontAr.variable}`}
     >
-      <body className="min-h-svh bg-[--color-bg-page] text-[--color-text-primary] antialiased">
+      <body
+        className="min-h-svh antialiased"
+        style={{ backgroundColor: "var(--color-bg-page)", color: "var(--color-text-primary)" }}
+      >
         {children}
         <Analytics />
       </body>

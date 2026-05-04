@@ -30,7 +30,7 @@ async function getRedis(): Promise<RedisClientType | null> {
   if (!connecting) {
     redis = createClient({ url: process.env.REDIS_URL });
     redis.on("error", (err) => console.error("[rate-limit] Redis error:", err));
-    connecting = redis.connect().catch((err) => {
+    connecting = redis.connect().then(() => undefined).catch((err) => {
       console.error("[rate-limit] Redis connect failed:", err);
       redis = null;
     });

@@ -98,10 +98,16 @@ async function ResourceDetailContent({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }}
       />
 
-      <section className="border-b border-[--color-border] bg-[--color-brand-black] py-14">
+      <section
+        className="border-b py-14"
+        style={{ backgroundColor: "var(--color-brand-black)", borderColor: "rgba(255,255,255,0.08)" }}
+      >
         <Container>
           <div className="max-w-3xl">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[--color-accent-gold]">
+            <p
+              className="mb-3 text-xs font-semibold uppercase tracking-widest"
+              style={{ color: "var(--color-accent-gold)" }}
+            >
               {dict.nav.resources}
             </p>
             <h1 className="text-3xl font-bold text-white sm:text-4xl">
@@ -126,7 +132,10 @@ async function ResourceDetailContent({
           )}
 
           <div className="flex flex-wrap items-center gap-4">
-            <span className="rounded-full bg-[--color-bg-subtle] px-3 py-1 text-sm font-medium text-[--color-text-muted]">
+            <span
+              className="rounded-full px-3 py-1 text-sm font-medium"
+              style={{ backgroundColor: "#f5f5f5", color: "#6b7280" }}
+            >
               {kindLabel[resource.kind] ?? resource.kind.toUpperCase()}
             </span>
 
@@ -136,7 +145,8 @@ async function ResourceDetailContent({
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
                 download={!isExternal ? true : undefined}
-                className="inline-flex items-center gap-2 rounded-lg bg-[--color-brand-deep] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+                style={{ backgroundColor: "var(--color-brand-deep)" }}
               >
                 {ctaLabel}
               </a>

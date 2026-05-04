@@ -172,6 +172,34 @@ export async function getCampaignBySlug(
       availableLocales: siblings.map((s) => s.locale as Locale),
     };
   } catch {
+    // DB unavailable — fall back to demo detail data
+    const { DEMO_CAMPAIGN_DETAILS, DEMO_CAMPAIGNS } = await import(
+      "@/lib/data/demo"
+    );
+
+    // 1. Try full detail records (keyed by slug)
+    for (const details of Object.values(DEMO_CAMPAIGN_DETAILS)) {
+      const detail = details[locale];
+      if (detail && detail.slug === slug) return detail;
+    }
+
+    // 2. Synthesise from list data
+    const list = DEMO_CAMPAIGNS[locale] ?? DEMO_CAMPAIGNS.en ?? [];
+    const found = list.find((c) => c.slug === slug);
+    if (found) {
+      return {
+        ...found,
+        body: found.excerpt ? `<p>${found.excerpt}</p>` : "<p>…</p>",
+        goals: null,
+        seoTitle: null,
+        metaDescription: found.excerpt ?? null,
+        ogTitle: null,
+        ogDescription: null,
+        ogImageId: null,
+        availableLocales: [],
+      };
+    }
+
     return null;
   }
 }

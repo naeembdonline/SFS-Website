@@ -183,6 +183,28 @@ export async function getPostBySlug(
       availableLocales: siblings.map((s) => s.locale as Locale),
     };
   } catch {
+    // DB unavailable — fall back to demo list data, synthesising a PostDetail
+    const { DEMO_NEWS, DEMO_BLOG } = await import("@/lib/data/demo");
+    const source = type === "news" ? DEMO_NEWS : DEMO_BLOG;
+    // Try the requested locale first, then all locales
+    const allLists = [source[locale], ...Object.values(source).filter((_, i) => Object.keys(source)[i] !== locale)];
+    for (const list of allLists) {
+      if (!list) continue;
+      const found = list.find((p) => p.slug === slug);
+      if (found) {
+        return {
+          ...found,
+          body: found.excerpt ? `<p>${found.excerpt}</p>` : "<p>…</p>",
+          seoTitle: null,
+          metaDescription: found.excerpt ?? null,
+          ogTitle: null,
+          ogDescription: null,
+          ogImageId: null,
+          authorUserId: null,
+          availableLocales: [],
+        };
+      }
+    }
     return null;
   }
 }
