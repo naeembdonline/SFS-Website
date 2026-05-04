@@ -76,6 +76,10 @@ export async function getCampaignList(
       .limit(limit)
       .offset(offset);
 
+    if (rows.length === 0) {
+      const { DEMO_CAMPAIGNS } = await import("@/lib/data/demo");
+      return (DEMO_CAMPAIGNS[locale] ?? []).slice(offset, offset + limit);
+    }
     return rows.map((r) => ({
       id: r.id,
       slug: r.slug,
@@ -88,7 +92,8 @@ export async function getCampaignList(
       endDate: r.endDate ?? null,
     }));
   } catch {
-    return [];
+    const { DEMO_CAMPAIGNS } = await import("@/lib/data/demo");
+    return (DEMO_CAMPAIGNS[locale] ?? []).slice(offset, offset + limit);
   }
 }
 

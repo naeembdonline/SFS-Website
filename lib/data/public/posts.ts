@@ -81,6 +81,11 @@ export async function getPostList(
       .limit(limit)
       .offset(offset);
 
+    if (rows.length === 0) {
+      const { DEMO_NEWS, DEMO_BLOG } = await import("@/lib/data/demo");
+      const pool = type === "news" ? DEMO_NEWS : DEMO_BLOG;
+      return (pool[locale] ?? []).slice(offset, offset + limit);
+    }
     return rows.map((r) => ({
       id: r.id,
       type: r.type as PostType,
@@ -91,7 +96,9 @@ export async function getPostList(
       coverMediaId: r.coverMediaId ?? null,
     }));
   } catch {
-    return [];
+    const { DEMO_NEWS, DEMO_BLOG } = await import("@/lib/data/demo");
+    const pool = type === "news" ? DEMO_NEWS : DEMO_BLOG;
+    return (pool[locale] ?? []).slice(offset, offset + limit);
   }
 }
 
